@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'publicaciones_service.dart';
-import 'imagen_service.dart';
+import '../services/publicaciones_service.dart';
+import '../services/imagen_service.dart';
+
 
 class CrearPublicacionScreen extends StatefulWidget {
   const CrearPublicacionScreen({super.key});
