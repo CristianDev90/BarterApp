@@ -25,7 +25,7 @@ class AuthService {
         });
       }
     } catch (e, st) {
-      _logger.e('Error al registrar', e, st);
+      _logger.e('Error al registrar: $e');
       rethrow;
     }
   }
@@ -35,7 +35,7 @@ class AuthService {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } catch (e, st) {
-      _logger.e('Error al iniciar sesión', e, st);
+      _logger.e('Error al iniciar sesión: $e');
       rethrow;
     }
   }
@@ -45,7 +45,7 @@ class AuthService {
     try {
       await _auth.signOut();
     } catch (e, st) {
-      _logger.e('Error al cerrar sesión', e, st);
+      _logger.e('Error al cerrar sesión: $e');
       rethrow;
     }
   }
