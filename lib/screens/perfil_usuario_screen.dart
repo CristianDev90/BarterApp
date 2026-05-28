@@ -597,11 +597,11 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       onTap: () => Navigator.push(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (_, animation, __) =>
+                          pageBuilder: (_, animation, _) =>
                               DetallePublicacionScreen(
                                   pub: pub, pubId: pubId),
                           transitionsBuilder:
-                              (_, animation, __, child) =>
+                              (_, animation, _, child) =>
                                   FadeTransition(
                                       opacity: animation, child: child),
                           transitionDuration:
