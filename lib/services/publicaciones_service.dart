@@ -12,12 +12,14 @@ class PublicacionesService {
     required String categoria,
     String? fotoUrl,
   }) async {
-    final userId = _auth.currentUser!.uid;
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+
     await _db.collection('publicaciones').add({
       'titulo': titulo,
       'descripcion': descripcion,
       'categoria': categoria,
-      'userId': userId,
+      'userId': user.uid,
       'fotoUrl': fotoUrl ?? '',
       'fecha': FieldValue.serverTimestamp(),
       'activa': true,
@@ -28,12 +30,37 @@ class PublicacionesService {
   Stream<QuerySnapshot> obtenerPublicaciones() {
     return _db
         .collection('publicaciones')
+        .where('activa', isEqualTo: true)
         .orderBy('fecha', descending: true)
         .snapshots();
   }
 
-  // Eliminar una publicación
+  // Obtener publicaciones del usuario actual
+  Stream<QuerySnapshot> misPublicaciones() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) throw Exception('Usuario no autenticado');
+    return _db
+        .collection('publicaciones')
+        .where('userId', isEqualTo: userId)
+        .where('activa', isEqualTo: true)
+        .orderBy('fecha', descending: true)
+        .snapshots();
+  }
+
+  // Actualizar una publicación
+  Future<void> actualizarPublicacion(
+      String publicacionId, Map<String, dynamic> datos) async {
+    await _db
+        .collection('publicaciones')
+        .doc(publicacionId)
+        .update(datos);
+  }
+
+  // Eliminar una publicación (desactivar)
   Future<void> eliminarPublicacion(String publicacionId) async {
-    await _db.collection('publicaciones').doc(publicacionId).delete();
+    await _db
+        .collection('publicaciones')
+        .doc(publicacionId)
+        .update({'activa': false});
   }
 }

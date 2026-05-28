@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'feed_screen.dart';
-import 'login_screen.dart';
-import 'auth_service.dart';
-import 'registro_screen.dart';
+import 'screens/feed_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/registro_screen.dart';
+import 'services/auth_service.dart';
+import 'services/firestore_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await FirestoreConfig.configurar();
   runApp(const MyApp());
 }
 
