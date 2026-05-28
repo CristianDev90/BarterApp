@@ -146,9 +146,13 @@ class _FeedScreenState extends State<FeedScreen> {
                 final seleccionada = _categoriaSeleccionada == cat ||
                     (cat == 'Todos' && _categoriaSeleccionada == null);
                 return GestureDetector(
-                  onTap: () => setState(() {
-                    _categoriaSeleccionada = cat == 'Todos' ? null : cat;
-                  }),
+                  onTap: () {
+                    _searchController.clear();
+                    setState(() {
+                      _categoriaSeleccionada = cat == 'Todos' ? null : cat;
+                      _busqueda = '';
+                    });
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -319,7 +323,9 @@ class _FeedScreenState extends State<FeedScreen> {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          'Sin resultados para\n"$_busqueda"',
+                          _busqueda.isNotEmpty
+                              ? 'Sin resultados para\n"$_busqueda"'
+                              : 'Sin publicaciones\nen esta categoría',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white54,
@@ -328,16 +334,17 @@ class _FeedScreenState extends State<FeedScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        TextButton(
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() => _busqueda = '');
-                          },
-                          child: const Text(
-                            'Limpiar búsqueda',
-                            style: TextStyle(color: Color(0xFF00DDFF)),
+                        if (_busqueda.isNotEmpty)
+                          TextButton(
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _busqueda = '');
+                            },
+                            child: const Text(
+                              'Limpiar búsqueda',
+                              style: TextStyle(color: Color(0xFF00DDFF)),
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   );
@@ -431,8 +438,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                                   content: const Text(
                                                     '¿Estás seguro?',
                                                     style: TextStyle(
-                                                        color:
-                                                            Colors.white54),
+                                                        color: Colors.white54),
                                                   ),
                                                   actions: [
                                                     TextButton(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/intercambio_service.dart';
-import 'calificacion_screen.dart';
 
 class IntercambiosScreen extends StatefulWidget {
   const IntercambiosScreen({super.key});
@@ -14,6 +14,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
     with SingleTickerProviderStateMixin {
   final _service = IntercambioService();
   late TabController _tabCtrl;
+  final _miUid = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   static const Color _magenta = Color(0xFFCC00FF);
   static const Color _cian = Color(0xFF00DDFF);
@@ -94,8 +95,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [_magenta, _cian],
               ).createShader(bounds),
-              child: const Icon(Icons.swap_horiz,
-                  size: 40, color: Colors.white),
+              child: const Icon(Icons.swap_horiz, size: 40, color: Colors.white),
             ),
           ),
           const SizedBox(height: 20),
@@ -107,6 +107,38 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _confirmarEliminar(BuildContext context, String docId) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF0F1422),
+        title: const Text(
+          'Eliminar del historial',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Solo desaparecerá de tu historial. El otro usuario seguirá viéndola.',
+          style: TextStyle(color: Colors.white54),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar',
+                style: TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar',
+                style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmar == true) {
+      await _service.eliminarPropuesta(docId);
+    }
   }
 
   Widget _buildTarjeta({
@@ -195,7 +227,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                             ],
                           ),
                         ),
-                        // Badge estado — withValues en vez de withOpacity
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
@@ -217,7 +248,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                     ),
                     const SizedBox(height: 12),
 
-                    // Mensaje — withValues en vez de withOpacity
+                    // Mensaje
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
@@ -295,40 +326,24 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                         ),
                       ),
 
-                    // Calificar — sin const para permitir interpolación
-                    if (estado == 'aceptado')
-                      SizedBox(
-                        width: double.infinity,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                                colors: [_magenta, _cian]),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CalificacionScreen(
-                                    paraUserId: otroUid,
-                                    nombreUsuario: nombre,
-                                  ),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
+                    // Eliminar del historial (cualquier estado terminado)
+                    if (estado != 'pendiente')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () =>
+                                _confirmarEliminar(context, doc.id),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.red),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                             ),
-                            icon: const Icon(Icons.star_outline,
-                                color: Colors.white, size: 18),
-                            label: Text(
-                              'Calificar a $nombre',
-                              style: const TextStyle(color: Colors.white),
-                            ),
+                            icon: const Icon(Icons.delete_outline,
+                                color: Colors.red, size: 18),
+                            label: const Text('Eliminar del historial',
+                                style: TextStyle(color: Colors.red)),
                           ),
                         ),
                       ),
@@ -351,16 +366,24 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
             child: CircularProgressIndicator(color: Color(0xFF00DDFF)),
           );
         }
-        if (!snap.hasData || snap.data!.docs.isEmpty) {
+
+        final docs = (snap.data?.docs ?? []).where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          final ocultoPara = List<String>.from(data['ocultoPara'] ?? []);
+          return !ocultoPara.contains(_miUid);
+        }).toList();
+
+        if (docs.isEmpty) {
           return _buildEmpty(esRecibido
               ? 'Nadie te ha propuesto\nun trueque todavía'
               : 'No has propuesto\nningún trueque todavía');
         }
+
         return ListView.builder(
           padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: snap.data!.docs.length,
+          itemCount: docs.length,
           itemBuilder: (_, i) => _buildTarjeta(
-            doc: snap.data!.docs[i],
+            doc: docs[i],
             esRecibido: esRecibido,
           ),
         );

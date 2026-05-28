@@ -4,11 +4,13 @@ import '../services/reputacion_service.dart';
 class CalificacionScreen extends StatefulWidget {
   final String paraUserId;
   final String nombreUsuario;
+  final String propuestaId; // NUEVO
 
   const CalificacionScreen({
     super.key,
     required this.paraUserId,
     required this.nombreUsuario,
+    required this.propuestaId, // NUEVO
   });
 
   @override
@@ -45,12 +47,13 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
     setState(() => _cargando = true);
     try {
       final yaCalifique =
-          await _reputacionService.yaCalifique(widget.paraUserId);
+          await _reputacionService.yaCalifique(widget.propuestaId); // CAMBIADO
+
       if (yaCalifique) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Ya calificaste a este usuario'),
+            content: Text('Ya calificaste este trueque'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -61,6 +64,7 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
         paraUserId: widget.paraUserId,
         puntuacion: _puntuacion,
         comentario: _comentarioCtrl.text.trim(),
+        propuestaId: widget.propuestaId, // NUEVO
       );
 
       if (!mounted) return;
@@ -83,6 +87,7 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ... igual que antes, no cambia nada visual
     return Scaffold(
       backgroundColor: _fondo,
       appBar: AppBar(
@@ -112,8 +117,6 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
-
-            // Card usuario a calificar
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -148,8 +151,6 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
               ),
             ),
             const SizedBox(height: 28),
-
-            // Estrellas
             const Text(
               'Puntuación',
               style: TextStyle(
@@ -167,10 +168,10 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: Icon(
-                      index < _puntuacion ? Icons.star_rounded : Icons.star_outline_rounded,
-                      color: index < _puntuacion
-                          ? Colors.amber
-                          : Colors.white24,
+                      index < _puntuacion
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      color: index < _puntuacion ? Colors.amber : Colors.white24,
                       size: 48,
                     ),
                   ),
@@ -178,8 +179,6 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
               }),
             ),
             const SizedBox(height: 28),
-
-            // Comentario
             const Text(
               'Comentario',
               style: TextStyle(
@@ -209,8 +208,6 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
               ),
             ),
             const SizedBox(height: 32),
-
-            // Botón enviar
             SizedBox(
               width: double.infinity,
               height: 52,

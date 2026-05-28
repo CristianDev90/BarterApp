@@ -17,7 +17,6 @@ class IntercambioService {
       throw Exception('No puedes intercambiar contigo mismo');
     }
 
-    // Revisar si ya enviaste una propuesta pendiente para esta publicación
     final yaExiste = await _db
         .collection('propuestas')
         .where('de_userId', isEqualTo: user.uid)
@@ -31,11 +30,12 @@ class IntercambioService {
 
     await _db.collection('propuestas').add({
       'publicacionId': publicacionId,
-      'para_userId': propietarioId,       // dueño de la publicación
-      'de_userId': user.uid,              // quien propone
+      'para_userId': propietarioId,
+      'de_userId': user.uid,
       'mensajePropuesta': mensajePropuesta,
       'estado': 'pendiente',
       'fecha': FieldValue.serverTimestamp(),
+      'ocultoPara': [],
     });
   }
 
@@ -90,8 +90,25 @@ class IntercambioService {
     });
   }
 
+  // ─── OCULTAR PROPUESTA (soft delete) ──────────────────────────────────────
+  Future<void> eliminarPropuesta(String propuestaId) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+
+    final doc = await _db.collection('propuestas').doc(propuestaId).get();
+    final data = doc.data();
+    if (data == null) throw Exception('Propuesta no encontrada');
+
+    if (data['de_userId'] != user.uid && data['para_userId'] != user.uid) {
+      throw Exception('No tienes permiso');
+    }
+
+    await _db.collection('propuestas').doc(propuestaId).update({
+      'ocultoPara': FieldValue.arrayUnion([user.uid]),
+    });
+  }
+
   // ─── MIS INTERCAMBIOS ENVIADOS ─────────────────────────────────────────────
-  // Propuestas que yo mandé a otros
   Stream<QuerySnapshot> misIntercambiosEnviados() {
     final uid = _auth.currentUser?.uid;
     return _db
@@ -102,7 +119,6 @@ class IntercambioService {
   }
 
   // ─── MIS INTERCAMBIOS RECIBIDOS ────────────────────────────────────────────
-  // Propuestas que otros me mandaron a mí
   Stream<QuerySnapshot> misIntercambiosRecibidos() {
     final uid = _auth.currentUser?.uid;
     return _db

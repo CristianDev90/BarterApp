@@ -5,30 +5,28 @@ class ReputacionService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Calificar a un usuario
   Future<void> calificarUsuario({
     required String paraUserId,
     required double puntuacion,
     required String comentario,
+    required String propuestaId,
   }) async {
     final deUserId = _auth.currentUser?.uid;
     if (deUserId == null) throw Exception('Usuario no autenticado');
     if (deUserId == paraUserId) throw Exception('No puedes calificarte a ti mismo');
 
-    // Guardar calificación
     await _db.collection('calificaciones').add({
       'de_userId': deUserId,
       'para_userId': paraUserId,
       'puntuacion': puntuacion,
       'comentario': comentario,
+      'propuestaId': propuestaId,
       'fecha': FieldValue.serverTimestamp(),
     });
 
-    // Actualizar promedio del usuario
     await _actualizarPromedio(paraUserId);
   }
 
-  // Calcular y actualizar promedio
   Future<void> _actualizarPromedio(String userId) async {
     final calificaciones = await _db
         .collection('calificaciones')
@@ -44,13 +42,12 @@ class ReputacionService {
 
     final promedio = total / calificaciones.docs.length;
 
-    await _db.collection('usuarios').doc(userId).update({
+    await _db.collection('usuarios').doc(userId).set({
       'calificacion_promedio': promedio,
       'total_calificaciones': calificaciones.docs.length,
-    });
+    }, SetOptions(merge: true));
   }
 
-  // Obtener calificaciones de un usuario
   Stream<QuerySnapshot> obtenerCalificaciones(String userId) {
     return _db
         .collection('calificaciones')
@@ -59,15 +56,14 @@ class ReputacionService {
         .snapshots();
   }
 
-  // Verificar si ya calificaste a un usuario
-  Future<bool> yaCalifique(String paraUserId) async {
+  Future<bool> yaCalifique(String propuestaId) async {
     final deUserId = _auth.currentUser?.uid;
     if (deUserId == null) return false;
 
     final resultado = await _db
         .collection('calificaciones')
         .where('de_userId', isEqualTo: deUserId)
-        .where('para_userId', isEqualTo: paraUserId)
+        .where('propuestaId', isEqualTo: propuestaId)
         .get();
 
     return resultado.docs.isNotEmpty;
