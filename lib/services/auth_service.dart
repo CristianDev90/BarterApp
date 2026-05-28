@@ -34,6 +34,8 @@ class AuthService {
           'fcm_token': token ?? '',
         });
       }
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e) {
       _logger.e('Error al registrar: $e');
       rethrow;
@@ -48,7 +50,6 @@ class AuthService {
         password: password,
       );
 
-      // Actualizar token FCM cada vez que inicia sesión
       if (cred.user != null) {
         final token = await _messaging.getToken();
         await _db.collection('usuarios').doc(cred.user!.uid).update({
@@ -56,6 +57,8 @@ class AuthService {
           'ultimo_login': FieldValue.serverTimestamp(),
         });
       }
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e) {
       _logger.e('Error al iniciar sesión: $e');
       rethrow;
@@ -65,7 +68,6 @@ class AuthService {
   // ─── LOGOUT ───────────────────────────────────────────────────────────────────
   Future<void> logout() async {
     try {
-      // Limpiar token al cerrar sesión para no recibir notificaciones
       final userId = _auth.currentUser?.uid;
       if (userId != null) {
         await _db.collection('usuarios').doc(userId).update({
@@ -92,6 +94,8 @@ class AuthService {
         return 'No existe una cuenta con ese correo.';
       case 'wrong-password':
         return 'Contraseña incorrecta.';
+      case 'invalid-credential':
+        return 'Correo o contraseña incorrectos.';
       case 'too-many-requests':
         return 'Demasiados intentos. Espera un momento.';
       case 'network-request-failed':

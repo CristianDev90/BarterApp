@@ -5,7 +5,6 @@ import 'registro_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
-
   const LoginScreen({super.key, required this.authService});
 
   @override
@@ -13,11 +12,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _loading = false;
-  bool _canLogin = false;
   bool _verPassword = false;
+  bool _canLogin = false;
+
+  // Colores del logo
+  static const Color _magenta = Color(0xFFCC00FF);
+  static const Color _cian = Color(0xFF00DDFF);
+  static const Color _fondo = Color(0xFF0A0E1A);
 
   @override
   void initState() {
@@ -35,8 +39,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _emailController.removeListener(_updateCanLogin);
-    _passwordController.removeListener(_updateCanLogin);
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -65,48 +67,163 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Iniciar Sesión')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              obscureText: !_verPassword,
-              decoration: InputDecoration(
-                labelText: 'Contraseña',
+      backgroundColor: _fondo,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            children: [
+              const SizedBox(height: 60),
+
+              // Logo
+              Image.asset('assets/images/logo.png', height: 120),
+              const SizedBox(height: 12),
+
+              // Título con gradiente
+              ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [_magenta, _cian],
+                ).createShader(bounds),
+                child: const Text(
+                  'BarterApp',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Intercambia lo que no usas',
+                style: TextStyle(color: Colors.white54, fontSize: 14),
+              ),
+              const SizedBox(height: 48),
+
+              // Campo Email
+              _buildTextField(
+                controller: _emailController,
+                label: 'Correo electrónico',
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+
+              // Campo Contraseña
+              _buildTextField(
+                controller: _passwordController,
+                label: 'Contraseña',
+                icon: Icons.lock_outline,
+                obscureText: !_verPassword,
                 suffixIcon: IconButton(
-                  icon: Icon(_verPassword ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(
+                    _verPassword ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.white38,
+                  ),
                   onPressed: () => setState(() => _verPassword = !_verPassword),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            _loading
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    onPressed: _canLogin ? _login : null,
-                    child: const Text('Iniciar Sesión'),
+              const SizedBox(height: 32),
+
+              // Botón login con gradiente
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: _canLogin
+                        ? const LinearGradient(colors: [_magenta, _cian])
+                        : null,
+                    color: _canLogin ? null : Colors.white12,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => RegistroScreen(authService: widget.authService),
+                  child: ElevatedButton(
+                    onPressed: _canLogin && !_loading ? _login : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: _loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Iniciar sesión',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
                 ),
               ),
-              child: const Text('Crear cuenta'),
-            ),
-          ],
+              const SizedBox(height: 20),
+
+              // Ir al registro
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('¿No tienes cuenta?',
+                      style: TextStyle(color: Colors.white54)),
+                  TextButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            RegistroScreen(authService: widget.authService),
+                      ),
+                    ),
+                    child: ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [_magenta, _cian],
+                      ).createShader(bounds),
+                      child: const Text(
+                        'Regístrate',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool obscureText = false,
+    TextInputType? keyboardType,
+    Widget? suffixIcon,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white54),
+        prefixIcon: Icon(icon, color: Colors.white38),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: Colors.white10,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _cian, width: 1.5),
         ),
       ),
     );
