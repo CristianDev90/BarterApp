@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/bloqueo_service.dart';
-import '../services/reportes_service.dart';
 import 'detalle_publicacion_screen.dart';
 import 'reporte_screen.dart';
  
