@@ -6,35 +6,35 @@ import '../services/publicaciones_service.dart';
 import 'detalle_publicacion_screen.dart';
 import 'editar_perfil_screen.dart';
 import 'crear_publicacion_screen.dart';
-
+ 
 class PerfilScreen extends StatefulWidget {
   const PerfilScreen({super.key});
-
+ 
   @override
   State<PerfilScreen> createState() => _PerfilScreenState();
 }
-
+ 
 class _PerfilScreenState extends State<PerfilScreen> {
   static const Color _magenta = Color(0xFFCC00FF);
   static const Color _cian = Color(0xFF00DDFF);
   static const Color _fondo = Color(0xFF0A0E1A);
-
+ 
   final _authService = AuthService();
   final _publicacionesService = PublicacionesService();
   final _user = FirebaseAuth.instance.currentUser;
-
+ 
   String _nombre = 'Usuario';
   String _email = '';
   String _bio = '';
   String _fotoUrl = '';
   bool _cargando = true;
-
+ 
   @override
   void initState() {
     super.initState();
     _cargarDatos();
   }
-
+ 
   Future<void> _cargarDatos() async {
     final doc = await FirebaseFirestore.instance
         .collection('usuarios')
@@ -51,7 +51,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       });
     }
   }
-
+ 
   Future<void> _irAEditar() async {
     final resultado = await Navigator.push<Map<String, String>>(
       context,
@@ -74,7 +74,13 @@ class _PerfilScreenState extends State<PerfilScreen> {
       });
     }
   }
-
+ 
+  // ── Método centralizado para cerrar sesión ──────────────────────────────
+  // El StreamBuilder en AppRoot detecta el cambio de auth y redirige solo
+  Future<void> _cerrarSesion() async {
+    await _authService.logout();
+  }
+ 
   @override
   Widget build(BuildContext context) {
     if (_cargando) {
@@ -85,7 +91,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
         ),
       );
     }
-
+ 
     return Scaffold(
       backgroundColor: _fondo,
       appBar: AppBar(
@@ -111,9 +117,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white54),
-            onPressed: () async {
-              await _authService.logout();
-            },
+            onPressed: _cerrarSesion, // ✅ CORREGIDO
           ),
         ],
       ),
@@ -123,7 +127,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-
+ 
             // Avatar y datos
             Center(
               child: Column(
@@ -190,7 +194,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
               ),
             ),
             const SizedBox(height: 28),
-
+ 
             // Info cards
             _buildInfoCard(
               icon: Icons.swap_horiz,
@@ -204,7 +208,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
               valor: '—',
             ),
             const SizedBox(height: 32),
-
+ 
             // Título sección
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
@@ -220,7 +224,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
               ),
             ),
             const SizedBox(height: 14),
-
+ 
             // Lista de mis publicaciones
             StreamBuilder<QuerySnapshot>(
               stream: _publicacionesService
@@ -235,7 +239,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     ),
                   );
                 }
-
+ 
                 // Empty state mejorado
                 if (!snap.hasData || snap.data!.docs.isEmpty) {
                   return Container(
@@ -307,9 +311,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     ),
                   );
                 }
-
+ 
                 final docs = snap.data!.docs;
-
+ 
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -319,7 +323,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         docs[index].data() as Map<String, dynamic>;
                     final pubId = docs[index].id;
                     final fotoUrl = pub['fotoUrl'] ?? '';
-
+ 
                     return GestureDetector(
                       onTap: () => Navigator.push(
                         context,
@@ -468,15 +472,13 @@ class _PerfilScreenState extends State<PerfilScreen> {
               },
             ),
             const SizedBox(height: 32),
-
+ 
             // Botón cerrar sesión
             SizedBox(
               width: double.infinity,
               height: 52,
               child: OutlinedButton(
-                onPressed: () async {
-                  await _authService.logout();
-                },
+                onPressed: _cerrarSesion, // ✅ CORREGIDO
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red, width: 1.5),
                   shape: RoundedRectangleBorder(
@@ -499,7 +501,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       ),
     );
   }
-
+ 
   Widget _buildInfoCard({
     required IconData icon,
     required String titulo,
@@ -540,20 +542,20 @@ class _PerfilScreenState extends State<PerfilScreen> {
     );
   }
 }
-
+ 
 // ── Skeleton para publicaciones del perfil ───────────────────────────────────
 class _SkeletonPublicacion extends StatefulWidget {
   const _SkeletonPublicacion();
-
+ 
   @override
   State<_SkeletonPublicacion> createState() => _SkeletonPublicacionState();
 }
-
+ 
 class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _anim;
-
+ 
   @override
   void initState() {
     super.initState();
@@ -565,13 +567,13 @@ class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
       CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
     );
   }
-
+ 
   @override
   void dispose() {
     _ctrl.dispose();
     super.dispose();
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -582,7 +584,7 @@ class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
           const Color(0xFF1E2440),
           _anim.value,
         )!;
-
+ 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
@@ -643,3 +645,4 @@ class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
     );
   }
 }
+ 
