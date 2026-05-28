@@ -94,7 +94,6 @@ class _FeedScreenState extends State<FeedScreen> {
       ),
       body: Column(
         children: [
-          // Barra de búsqueda
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: TextField(
@@ -128,7 +127,6 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           ),
 
-          // Filtros de categoría
           SizedBox(
             height: 40,
             child: ListView.builder(
@@ -153,7 +151,9 @@ class _FeedScreenState extends State<FeedScreen> {
                       color: seleccionada ? null : const Color(0xFF0F1422),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: seleccionada ? Colors.transparent : Colors.white12,
+                        color: seleccionada
+                            ? Colors.transparent
+                            : Colors.white12,
                       ),
                     ),
                     child: Center(
@@ -175,14 +175,15 @@ class _FeedScreenState extends State<FeedScreen> {
           ),
           const SizedBox(height: 8),
 
-          // Lista de publicaciones
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _getStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF00DDFF)),
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: 4,
+                    itemBuilder: (_, __) => const _SkeletonCard(),
                   );
                 }
 
@@ -195,24 +196,83 @@ class _FeedScreenState extends State<FeedScreen> {
                     child: ListView(
                       children: [
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
+                          height: MediaQuery.of(context).size.height * 0.6,
                           child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                Container(
+                                  width: 110,
+                                  height: 110,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0F1422),
+                                    borderRadius: BorderRadius.circular(55),
+                                    border: Border.all(color: Colors.white10),
+                                  ),
+                                  child: ShaderMask(
+                                    shaderCallback: (bounds) =>
+                                        const LinearGradient(
+                                      colors: [_magenta, _cian],
+                                    ).createShader(bounds),
+                                    child: const Icon(Icons.swap_horiz,
+                                        size: 52, color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
                                 ShaderMask(
                                   shaderCallback: (bounds) =>
                                       const LinearGradient(
                                     colors: [_magenta, _cian],
                                   ).createShader(bounds),
-                                  child: const Icon(Icons.swap_horiz,
-                                      size: 64, color: Colors.white),
+                                  child: const Text(
+                                    'Sin publicaciones aún',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 10),
                                 const Text(
-                                  'No hay publicaciones',
+                                  'Sé el primero en publicar\nalgo para intercambiar',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
-                                      color: Colors.white54, fontSize: 16),
+                                      color: Colors.white38, fontSize: 14),
+                                ),
+                                const SizedBox(height: 32),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                        colors: [_magenta, _cian]),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              const CrearPublicacionScreen()),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 24, vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.add,
+                                        color: Colors.white),
+                                    label: const Text(
+                                      'Crear publicación',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -223,12 +283,12 @@ class _FeedScreenState extends State<FeedScreen> {
                   );
                 }
 
-                // Filtrar por búsqueda local
                 final publicaciones = snapshot.data!.docs.where((doc) {
                   if (_busqueda.isEmpty) return true;
                   final pub = doc.data() as Map<String, dynamic>;
                   final titulo = (pub['titulo'] ?? '').toLowerCase();
-                  final descripcion = (pub['descripcion'] ?? '').toLowerCase();
+                  final descripcion =
+                      (pub['descripcion'] ?? '').toLowerCase();
                   return titulo.contains(_busqueda) ||
                       descripcion.contains(_busqueda);
                 }).toList();
@@ -238,13 +298,37 @@ class _FeedScreenState extends State<FeedScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.search_off,
-                            color: Colors.white38, size: 48),
-                        const SizedBox(height: 12),
+                        Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F1422),
+                            borderRadius: BorderRadius.circular(45),
+                            border: Border.all(color: Colors.white10),
+                          ),
+                          child: const Icon(Icons.search_off,
+                              color: Colors.white24, size: 40),
+                        ),
+                        const SizedBox(height: 20),
                         Text(
-                          'Sin resultados para "$_busqueda"',
+                          'Sin resultados para\n"$_busqueda"',
+                          textAlign: TextAlign.center,
                           style: const TextStyle(
-                              color: Colors.white54, fontSize: 14),
+                            color: Colors.white54,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _busqueda = '');
+                          },
+                          child: const Text(
+                            'Limpiar búsqueda',
+                            style: TextStyle(color: Color(0xFF00DDFF)),
+                          ),
                         ),
                       ],
                     ),
@@ -275,12 +359,9 @@ class _FeedScreenState extends State<FeedScreen> {
                               pub: pub,
                               pubId: pubId,
                             ),
-                            transitionsBuilder: (_, animation, __, child) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              );
-                            },
+                            transitionsBuilder: (_, animation, __, child) =>
+                                FadeTransition(
+                                    opacity: animation, child: child),
                             transitionDuration:
                                 const Duration(milliseconds: 300),
                           ),
@@ -310,7 +391,8 @@ class _FeedScreenState extends State<FeedScreen> {
                               Padding(
                                 padding: const EdgeInsets.all(14),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -341,7 +423,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                                   content: const Text(
                                                     '¿Estás seguro?',
                                                     style: TextStyle(
-                                                        color: Colors.white54),
+                                                        color:
+                                                            Colors.white54),
                                                   ),
                                                   actions: [
                                                     TextButton(
@@ -369,7 +452,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                               );
                                               if (confirmar == true) {
                                                 await _service
-                                                    .eliminarPublicacion(pubId);
+                                                    .eliminarPublicacion(
+                                                        pubId);
                                               }
                                             },
                                             child: const Icon(
@@ -383,7 +467,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                     Text(
                                       pub['descripcion'] ?? '',
                                       style: const TextStyle(
-                                          color: Colors.white60, fontSize: 14),
+                                          color: Colors.white60,
+                                          fontSize: 14),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -394,7 +479,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                       decoration: BoxDecoration(
                                         gradient: const LinearGradient(
                                             colors: [_magenta, _cian]),
-                                        borderRadius: BorderRadius.circular(20),
+                                        borderRadius:
+                                            BorderRadius.circular(20),
                                       ),
                                       child: Text(
                                         pub['categoria'] ?? '',
@@ -451,6 +537,118 @@ class _FeedScreenState extends State<FeedScreen> {
           child: const Icon(Icons.add, color: Colors.white),
         ),
       ),
+    );
+  }
+}
+
+// ── Skeleton Card ────────────────────────────────────────────────────────────
+class _SkeletonCard extends StatefulWidget {
+  const _SkeletonCard();
+
+  @override
+  State<_SkeletonCard> createState() => _SkeletonCardState();
+}
+
+class _SkeletonCardState extends State<_SkeletonCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+    _anim = Tween<double>(begin: 0.3, end: 0.7).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) {
+        final color = Color.lerp(
+          const Color(0xFF0F1422),
+          const Color(0xFF1E2440),
+          _anim.value,
+        )!;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F1422),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  color: color,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 180,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: 80,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

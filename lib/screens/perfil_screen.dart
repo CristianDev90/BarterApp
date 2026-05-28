@@ -5,6 +5,7 @@ import '../services/auth_service.dart';
 import '../services/publicaciones_service.dart';
 import 'detalle_publicacion_screen.dart';
 import 'editar_perfil_screen.dart';
+import 'crear_publicacion_screen.dart';
 
 class PerfilScreen extends StatefulWidget {
   const PerfilScreen({super.key});
@@ -173,15 +174,16 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   const SizedBox(height: 6),
                   Text(
                     _email,
-                    style: const TextStyle(color: Colors.white54, fontSize: 14),
+                    style:
+                        const TextStyle(color: Colors.white54, fontSize: 14),
                   ),
                   if (_bio.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     Text(
                       _bio,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.white60, fontSize: 13),
+                      style:
+                          const TextStyle(color: Colors.white60, fontSize: 13),
                     ),
                   ],
                 ],
@@ -203,7 +205,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Título sección mis publicaciones
+            // Título sección
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [_magenta, _cian],
@@ -224,30 +226,84 @@ class _PerfilScreenState extends State<PerfilScreen> {
               stream: _publicacionesService
                   .obtenerMisPublicaciones(_user?.uid ?? ''),
               builder: (context, snap) {
+                // Skeleton mientras carga
                 if (snap.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: CircularProgressIndicator(
-                          color: Color(0xFF00DDFF)),
+                  return Column(
+                    children: List.generate(
+                      2,
+                      (_) => const _SkeletonPublicacion(),
                     ),
                   );
                 }
 
+                // Empty state mejorado
                 if (!snap.hasData || snap.data!.docs.isEmpty) {
                   return Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 40, horizontal: 24),
                     decoration: BoxDecoration(
                       color: const Color(0xFF0F1422),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: Colors.white10),
                     ),
-                    child: const Center(
-                      child: Text(
-                        'Aún no tienes publicaciones',
-                        style:
-                            TextStyle(color: Colors.white38, fontSize: 14),
-                      ),
+                    child: Column(
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [_magenta, _cian],
+                          ).createShader(bounds),
+                          child: const Icon(Icons.inventory_2_outlined,
+                              size: 48, color: Colors.white),
+                        ),
+                        const SizedBox(height: 14),
+                        const Text(
+                          'Aún no tienes publicaciones',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Publica algo para empezar\na hacer trueques',
+                          textAlign: TextAlign.center,
+                          style:
+                              TextStyle(color: Colors.white38, fontSize: 13),
+                        ),
+                        const SizedBox(height: 24),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                                colors: [_magenta, _cian]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ElevatedButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const CrearPublicacionScreen()),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.add, color: Colors.white),
+                            label: const Text(
+                              'Crear publicación',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -375,7 +431,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                         'Eliminar publicación',
                                         style: TextStyle(
                                             color: Colors.white)),
-                                    content: const Text('¿Estás seguro?',
+                                    content: const Text(
+                                        '¿Estás seguro?',
                                         style: TextStyle(
                                             color: Colors.white54)),
                                     actions: [
@@ -480,6 +537,109 @@ class _PerfilScreenState extends State<PerfilScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ── Skeleton para publicaciones del perfil ───────────────────────────────────
+class _SkeletonPublicacion extends StatefulWidget {
+  const _SkeletonPublicacion();
+
+  @override
+  State<_SkeletonPublicacion> createState() => _SkeletonPublicacionState();
+}
+
+class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+    _anim = Tween<double>(begin: 0.3, end: 0.7).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) {
+        final color = Color.lerp(
+          const Color(0xFF0F1422),
+          const Color(0xFF1E2440),
+          _anim.value,
+        )!;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F1422),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white10),
+          ),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(16)),
+                child: Container(width: 90, height: 90, color: color),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16, horizontal: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 140,
+                        height: 11,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: 60,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 40),
+            ],
+          ),
+        );
+      },
     );
   }
 }

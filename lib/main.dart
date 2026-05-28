@@ -28,11 +28,52 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: _SmoothPageTransition(),
+            TargetPlatform.iOS: _SmoothPageTransition(),
+          },
+        ),
       ),
       routes: {
         '/registro': (context) => RegistroScreen(authService: authService),
       },
       home: const AppRoot(),
+    );
+  }
+}
+
+// ── Transición suave fade + slide para toda la app ──────────────────────────
+class _SmoothPageTransition extends PageTransitionsBuilder {
+  const _SmoothPageTransition();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final fadeAnim = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOut,
+    );
+
+    final slideAnim = Tween<Offset>(
+      begin: const Offset(0.04, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOut,
+    ));
+
+    return FadeTransition(
+      opacity: fadeAnim,
+      child: SlideTransition(
+        position: slideAnim,
+        child: child,
+      ),
     );
   }
 }
