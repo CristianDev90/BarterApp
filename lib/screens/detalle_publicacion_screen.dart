@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/publicaciones_service.dart';
 import 'proponer_intercambio_screen.dart';
 import 'calificacion_screen.dart';
+import 'perfil_usuario_screen.dart';
 
 class DetallePublicacionScreen extends StatefulWidget {
   final Map<String, dynamic> pub;
@@ -217,7 +218,50 @@ class _DetallePublicacionScreenState extends State<DetallePublicacionScreen> {
                       height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
+
+                  // Botón ver perfil del propietario
+                  if (!esElDueno)
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PerfilUsuarioScreen(
+                            userId: widget.pub['userId'],
+                          ),
+                        ),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F1422),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.person_outline,
+                                color: Color(0xFF00DDFF), size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Ver perfil de ${_propietarioNombre ?? 'usuario'}',
+                              style: const TextStyle(
+                                color: Color(0xFF00DDFF),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.arrow_forward_ios,
+                                color: Color(0xFF00DDFF), size: 12),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 16),
                   if (!esElDueno) _buildBotonAccion(context),
                 ],
               ),

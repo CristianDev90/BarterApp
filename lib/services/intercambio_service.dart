@@ -127,4 +127,32 @@ class IntercambioService {
         .orderBy('fecha', descending: true)
         .snapshots();
   }
+  // ─── ENVIAR MENSAJE ────────────────────────────────────────────────────────
+Future<void> enviarMensaje({
+  required String propuestaId,
+  required String texto,
+}) async {
+  final user = _auth.currentUser;
+  if (user == null) throw Exception('Usuario no autenticado');
+
+  await _db
+      .collection('propuestas')
+      .doc(propuestaId)
+      .collection('mensajes')
+      .add({
+    'de_userId': user.uid,
+    'texto': texto,
+    'fecha': FieldValue.serverTimestamp(),
+  });
+}
+
+// ─── STREAM DE MENSAJES ────────────────────────────────────────────────────
+Stream<QuerySnapshot> mensajesDeChat(String propuestaId) {
+  return _db
+      .collection('propuestas')
+      .doc(propuestaId)
+      .collection('mensajes')
+      .orderBy('fecha', descending: false)
+      .snapshots();
+}
 }

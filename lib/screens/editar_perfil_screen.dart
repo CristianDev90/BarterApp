@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import '../services/imagen_service.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
@@ -399,7 +398,7 @@ class _CropScreenState extends State<_CropScreen> {
       final pngBytes =
           await img.toByteData(format: ui.ImageByteFormat.png);
 
-      final dir = await getTemporaryDirectory();
+      final dir = await _getTempDir();
       final file = File('${dir.path}/avatar_crop.png');
       await file.writeAsBytes(pngBytes!.buffer.asUint8List());
 
@@ -407,6 +406,10 @@ class _CropScreenState extends State<_CropScreen> {
     } catch (e) {
       if (mounted) setState(() => _procesando = false);
     }
+  }
+
+  Future<Directory> _getTempDir() async {
+    return Directory.systemTemp;
   }
 
   @override
@@ -487,11 +490,11 @@ class _CropScreenState extends State<_CropScreen> {
                           screenSize.width, screenSize.height),
                     ),
                   ),
-                  Positioned(
+                  const Positioned(
                     bottom: 32,
                     left: 0,
                     right: 0,
-                    child: const Text(
+                    child: Text(
                       'Mueve y pellizca para ajustar',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white60, fontSize: 13),

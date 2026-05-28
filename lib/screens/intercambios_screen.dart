@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/intercambio_service.dart';
+import 'chat_screen.dart';
 
 class IntercambiosScreen extends StatefulWidget {
   const IntercambiosScreen({super.key});
@@ -323,6 +324,44 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                           ),
                           child: const Text('Cancelar propuesta',
                               style: TextStyle(color: Colors.orange)),
+                        ),
+                      ),
+
+                    // Botón chat (propuesta aceptada)
+                    if (estado == 'aceptado')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                  colors: [_magenta, _cian]),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ElevatedButton.icon(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChatScreen(
+                                    propuestaId: doc.id,
+                                    otroUsuarioNombre: nombre,
+                                    otroUsuarioFoto: fotoUrl,
+                                  ),
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                              ),
+                              icon: const Icon(Icons.chat_bubble_outline,
+                                  color: Colors.white, size: 18),
+                              label: const Text('Abrir chat',
+                                  style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
                         ),
                       ),
 
