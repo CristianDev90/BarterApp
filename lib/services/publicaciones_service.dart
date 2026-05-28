@@ -45,10 +45,8 @@ class PublicacionesService {
         .snapshots();
   }
 
-  // Publicaciones del usuario actual
-  Stream<QuerySnapshot> obtenerMisPublicaciones() {
-    final userId = _auth.currentUser?.uid;
-    if (userId == null) throw Exception('Usuario no autenticado');
+  // Publicaciones de un usuario específico
+  Stream<QuerySnapshot> obtenerMisPublicaciones(String userId) {
     return _db
         .collection('publicaciones')
         .where('userId', isEqualTo: userId)
