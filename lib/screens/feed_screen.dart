@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,26 +7,30 @@ import 'crear_publicacion_screen.dart';
 import 'perfil_screen.dart';
 import 'detalle_publicacion_screen.dart';
 import 'intercambios_screen.dart';
-
+ 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
-
+ 
   @override
   State<FeedScreen> createState() => _FeedScreenState();
 }
-
+ 
 class _FeedScreenState extends State<FeedScreen> {
   final _service = PublicacionesService();
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
   final _searchController = TextEditingController();
-
+ 
   static const Color _magenta = Color(0xFFCC00FF);
   static const Color _cian = Color(0xFF00DDFF);
   static const Color _fondo = Color(0xFF0A0E1A);
-
+ 
   String? _categoriaSeleccionada;
   String _busqueda = '';
-
+ 
+  // ── BUG 4: lista de usuarios bloqueados ─────────────────────────────────
+  List<String> _bloqueados = [];
+  StreamSubscription? _bloqueoSub;
+ 
   final List<String> _categorias = [
     'Todos',
     'Electrónica',
@@ -37,28 +42,53 @@ class _FeedScreenState extends State<FeedScreen> {
     'Herramientas',
     'Otros',
   ];
-
+ 
+  @override
+  void initState() {
+    super.initState();
+    _escucharBloqueados();
+  }
+ 
+  // ── BUG 4: escuchar en tiempo real la lista de bloqueados ────────────────
+  void _escucharBloqueados() {
+    final miId = FirebaseAuth.instance.currentUser?.uid;
+    if (miId == null) return;
+    _bloqueoSub = FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(miId)
+        .collection('bloqueados')
+        .snapshots()
+        .listen((snap) {
+      if (mounted) {
+        setState(() {
+          _bloqueados = snap.docs.map((d) => d.id).toList();
+        });
+      }
+    });
+  }
+ 
   @override
   void dispose() {
     _searchController.dispose();
+    _bloqueoSub?.cancel();
     super.dispose();
   }
-
+ 
   Future<void> _refrescar() async {
     setState(() {});
   }
-
+ 
   Stream<QuerySnapshot> _getStream() {
     if (_categoriaSeleccionada != null && _categoriaSeleccionada != 'Todos') {
       return _service.obtenerPorCategoria(_categoriaSeleccionada!);
     }
     return _service.obtenerPublicaciones();
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     final miId = FirebaseAuth.instance.currentUser?.uid;
-
+ 
     return Scaffold(
       backgroundColor: _fondo,
       appBar: AppBar(
@@ -78,12 +108,56 @@ class _FeedScreenState extends State<FeedScreen> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.swap_horiz, color: Colors.white54),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const IntercambiosScreen()),
-            ),
+          // ── BUG 2: burbuja de notificaciones en intercambios ─────────────
+          StreamBuilder<QuerySnapshot>(
+            stream: miId == null
+                ? const Stream.empty()
+                : FirebaseFirestore.instance
+                    .collection('intercambios')
+                    .where('para_userId', isEqualTo: miId)
+                    .where('estado', isEqualTo: 'pendiente')
+                    .snapshots(),
+            builder: (context, snap) {
+              final pendientes = snap.data?.docs.length ?? 0;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.swap_horiz, color: Colors.white54),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const IntercambiosScreen()),
+                    ),
+                  ),
+                  if (pendientes > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(9),
+                          border: Border.all(
+                              color: const Color(0xFF0F1422), width: 1.5),
+                        ),
+                        child: Center(
+                          child: Text(
+                            pendientes > 9 ? '9+' : '$pendientes',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.person_outline, color: Colors.white54),
@@ -107,14 +181,17 @@ class _FeedScreenState extends State<FeedScreen> {
             child: TextField(
               controller: _searchController,
               style: const TextStyle(color: Colors.white),
-              onChanged: (val) => setState(() => _busqueda = val.toLowerCase()),
+              onChanged: (val) =>
+                  setState(() => _busqueda = val.toLowerCase()),
               decoration: InputDecoration(
                 hintText: 'Buscar publicaciones...',
                 hintStyle: const TextStyle(color: Colors.white38),
-                prefixIcon: const Icon(Icons.search, color: Colors.white38),
+                prefixIcon:
+                    const Icon(Icons.search, color: Colors.white38),
                 suffixIcon: _busqueda.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white38),
+                        icon: const Icon(Icons.close,
+                            color: Colors.white38),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _busqueda = '');
@@ -134,7 +211,7 @@ class _FeedScreenState extends State<FeedScreen> {
               ),
             ),
           ),
-
+ 
           SizedBox(
             height: 40,
             child: ListView.builder(
@@ -151,12 +228,16 @@ class _FeedScreenState extends State<FeedScreen> {
                   }),
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
                       gradient: seleccionada
-                          ? const LinearGradient(colors: [_magenta, _cian])
+                          ? const LinearGradient(
+                              colors: [_magenta, _cian])
                           : null,
-                      color: seleccionada ? null : const Color(0xFF0F1422),
+                      color: seleccionada
+                          ? null
+                          : const Color(0xFF0F1422),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: seleccionada
@@ -168,7 +249,9 @@ class _FeedScreenState extends State<FeedScreen> {
                       child: Text(
                         cat,
                         style: TextStyle(
-                          color: seleccionada ? Colors.white : Colors.white54,
+                          color: seleccionada
+                              ? Colors.white
+                              : Colors.white54,
                           fontSize: 13,
                           fontWeight: seleccionada
                               ? FontWeight.bold
@@ -182,20 +265,23 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           ),
           const SizedBox(height: 8),
-
+ 
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _getStream(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8),
                     itemCount: 4,
-                    itemBuilder: (_, _) => const _SkeletonCard(),
+                    itemBuilder: (_, __) => const _SkeletonCard(),
                   );
                 }
-
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+ 
+                if (!snapshot.hasData ||
+                    snapshot.data!.docs.isEmpty) {
                   return RefreshIndicator(
                     key: _refreshKey,
                     onRefresh: _refrescar,
@@ -204,26 +290,34 @@ class _FeedScreenState extends State<FeedScreen> {
                     child: ListView(
                       children: [
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.6,
+                          height:
+                              MediaQuery.of(context).size.height *
+                                  0.6,
                           child: Center(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center,
                               children: [
                                 Container(
                                   width: 110,
                                   height: 110,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF0F1422),
-                                    borderRadius: BorderRadius.circular(55),
-                                    border: Border.all(color: Colors.white10),
+                                    color:
+                                        const Color(0xFF0F1422),
+                                    borderRadius:
+                                        BorderRadius.circular(55),
+                                    border: Border.all(
+                                        color: Colors.white10),
                                   ),
                                   child: ShaderMask(
                                     shaderCallback: (bounds) =>
                                         const LinearGradient(
                                       colors: [_magenta, _cian],
                                     ).createShader(bounds),
-                                    child: const Icon(Icons.swap_horiz,
-                                        size: 52, color: Colors.white),
+                                    child: const Icon(
+                                        Icons.swap_horiz,
+                                        size: 52,
+                                        color: Colors.white),
                                   ),
                                 ),
                                 const SizedBox(height: 24),
@@ -246,30 +340,43 @@ class _FeedScreenState extends State<FeedScreen> {
                                   'Sé el primero en publicar\nalgo para intercambiar',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                      color: Colors.white38, fontSize: 14),
+                                      color: Colors.white38,
+                                      fontSize: 14),
                                 ),
                                 const SizedBox(height: 32),
                                 Container(
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                        colors: [_magenta, _cian]),
-                                    borderRadius: BorderRadius.circular(12),
+                                    gradient:
+                                        const LinearGradient(
+                                            colors: [
+                                          _magenta,
+                                          _cian
+                                        ]),
+                                    borderRadius:
+                                        BorderRadius.circular(12),
                                   ),
                                   child: ElevatedButton.icon(
-                                    onPressed: () => Navigator.push(
+                                    onPressed: () =>
+                                        Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (_) =>
                                               const CrearPublicacionScreen()),
                                     ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      shadowColor: Colors.transparent,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 24, vertical: 14),
+                                    style:
+                                        ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Colors.transparent,
+                                      shadowColor:
+                                          Colors.transparent,
+                                      padding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 24,
+                                              vertical: 14),
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(12),
+                                            BorderRadius.circular(
+                                                12),
                                       ),
                                     ),
                                     icon: const Icon(Icons.add,
@@ -278,7 +385,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                       'Crear publicación',
                                       style: TextStyle(
                                           color: Colors.white,
-                                          fontWeight: FontWeight.bold),
+                                          fontWeight:
+                                              FontWeight.bold),
                                     ),
                                   ),
                                 ),
@@ -290,17 +398,25 @@ class _FeedScreenState extends State<FeedScreen> {
                     ),
                   );
                 }
-
-                final publicaciones = snapshot.data!.docs.where((doc) {
+ 
+                // ── BUG 4: filtrar publicaciones de bloqueados ───────────
+                final publicaciones =
+                    snapshot.data!.docs.where((doc) {
+                  final pub =
+                      doc.data() as Map<String, dynamic>;
+                  final userId =
+                      pub['userId'] as String? ?? '';
+                  // Ocultar publicaciones de usuarios bloqueados
+                  if (_bloqueados.contains(userId)) return false;
                   if (_busqueda.isEmpty) return true;
-                  final pub = doc.data() as Map<String, dynamic>;
-                  final titulo = (pub['titulo'] ?? '').toLowerCase();
+                  final titulo =
+                      (pub['titulo'] ?? '').toLowerCase();
                   final descripcion =
                       (pub['descripcion'] ?? '').toLowerCase();
                   return titulo.contains(_busqueda) ||
                       descripcion.contains(_busqueda);
                 }).toList();
-
+ 
                 if (publicaciones.isEmpty) {
                   return Center(
                     child: Column(
@@ -311,8 +427,10 @@ class _FeedScreenState extends State<FeedScreen> {
                           height: 90,
                           decoration: BoxDecoration(
                             color: const Color(0xFF0F1422),
-                            borderRadius: BorderRadius.circular(45),
-                            border: Border.all(color: Colors.white10),
+                            borderRadius:
+                                BorderRadius.circular(45),
+                            border: Border.all(
+                                color: Colors.white10),
                           ),
                           child: const Icon(Icons.search_off,
                               color: Colors.white24, size: 40),
@@ -335,21 +453,23 @@ class _FeedScreenState extends State<FeedScreen> {
                           },
                           child: const Text(
                             'Limpiar búsqueda',
-                            style: TextStyle(color: Color(0xFF00DDFF)),
+                            style: TextStyle(
+                                color: Color(0xFF00DDFF)),
                           ),
                         ),
                       ],
                     ),
                   );
                 }
-
+ 
                 return RefreshIndicator(
                   key: _refreshKey,
                   onRefresh: _refrescar,
                   color: _cian,
                   backgroundColor: const Color(0xFF0F1422),
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8),
                     itemCount: publicaciones.length,
                     itemBuilder: (context, index) {
                       final pub = publicaciones[index].data()
@@ -357,21 +477,23 @@ class _FeedScreenState extends State<FeedScreen> {
                       final pubId = publicaciones[index].id;
                       final fotoUrl = pub['fotoUrl'] ?? '';
                       final esElDueno = pub['userId'] == miId;
-
+ 
                       return GestureDetector(
                         onTap: () => Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (_, animation, _) =>
+                            pageBuilder: (_, animation, __) =>
                                 DetallePublicacionScreen(
                               pub: pub,
                               pubId: pubId,
                             ),
-                            transitionsBuilder: (_, animation, _, child) =>
-                                FadeTransition(
-                                    opacity: animation, child: child),
-                            transitionDuration:
-                                const Duration(milliseconds: 300),
+                            transitionsBuilder:
+                                (_, animation, __, child) =>
+                                    FadeTransition(
+                                        opacity: animation,
+                                        child: child),
+                            transitionDuration: const Duration(
+                                milliseconds: 300),
                           ),
                         ),
                         child: Container(
@@ -379,16 +501,21 @@ class _FeedScreenState extends State<FeedScreen> {
                               horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             color: const Color(0xFF0F1422),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white10),
+                            borderRadius:
+                                BorderRadius.circular(16),
+                            border: Border.all(
+                                color: Colors.white10),
                           ),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
                             children: [
                               if (fotoUrl.isNotEmpty)
                                 ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(16)),
+                                  borderRadius:
+                                      const BorderRadius.vertical(
+                                          top: Radius.circular(
+                                              16)),
                                   child: Image.network(
                                     fotoUrl,
                                     width: double.infinity,
@@ -397,7 +524,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                   ),
                                 ),
                               Padding(
-                                padding: const EdgeInsets.all(14),
+                                padding:
+                                    const EdgeInsets.all(14),
                                 child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
@@ -407,9 +535,11 @@ class _FeedScreenState extends State<FeedScreen> {
                                         Expanded(
                                           child: Text(
                                             pub['titulo'] ?? '',
-                                            style: const TextStyle(
+                                            style:
+                                                const TextStyle(
                                               color: Colors.white,
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight:
+                                                  FontWeight.bold,
                                               fontSize: 16,
                                             ),
                                           ),
@@ -418,27 +548,30 @@ class _FeedScreenState extends State<FeedScreen> {
                                           GestureDetector(
                                             onTap: () async {
                                               final confirmar =
-                                                  await showDialog<bool>(
+                                                  await showDialog<
+                                                      bool>(
                                                 context: context,
-                                                builder: (_) => AlertDialog(
+                                                builder: (_) =>
+                                                    AlertDialog(
                                                   backgroundColor:
-                                                      const Color(0xFF0F1422),
+                                                      const Color(
+                                                          0xFF0F1422),
                                                   title: const Text(
-                                                    'Eliminar publicación',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
+                                                      'Eliminar publicación',
+                                                      style: TextStyle(
+                                                          color: Colors
+                                                              .white)),
                                                   content: const Text(
-                                                    '¿Estás seguro?',
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.white54),
-                                                  ),
+                                                      '¿Estás seguro?',
+                                                      style: TextStyle(
+                                                          color: Colors
+                                                              .white54)),
                                                   actions: [
                                                     TextButton(
                                                       onPressed: () =>
                                                           Navigator.pop(
-                                                              context, false),
+                                                              context,
+                                                              false),
                                                       child: const Text(
                                                           'Cancelar',
                                                           style: TextStyle(
@@ -448,17 +581,20 @@ class _FeedScreenState extends State<FeedScreen> {
                                                     TextButton(
                                                       onPressed: () =>
                                                           Navigator.pop(
-                                                              context, true),
+                                                              context,
+                                                              true),
                                                       child: const Text(
                                                           'Eliminar',
                                                           style: TextStyle(
                                                               color:
-                                                                  Colors.red)),
+                                                                  Colors
+                                                                      .red)),
                                                     ),
                                                   ],
                                                 ),
                                               );
-                                              if (confirmar == true) {
+                                              if (confirmar ==
+                                                  true) {
                                                 await _service
                                                     .eliminarPublicacion(
                                                         pubId);
@@ -478,24 +614,33 @@ class _FeedScreenState extends State<FeedScreen> {
                                           color: Colors.white60,
                                           fontSize: 14),
                                       maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
+                                      overflow:
+                                          TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 10),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
+                                      padding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4),
                                       decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                            colors: [_magenta, _cian]),
+                                        gradient:
+                                            const LinearGradient(
+                                                colors: [
+                                          _magenta,
+                                          _cian
+                                        ]),
                                         borderRadius:
-                                            BorderRadius.circular(20),
+                                            BorderRadius.circular(
+                                                20),
                                       ),
                                       child: Text(
                                         pub['categoria'] ?? '',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight:
+                                              FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -516,16 +661,17 @@ class _FeedScreenState extends State<FeedScreen> {
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [_magenta, _cian]),
+          gradient:
+              const LinearGradient(colors: [_magenta, _cian]),
           borderRadius: BorderRadius.circular(16),
         ),
         child: FloatingActionButton(
           onPressed: () => Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (_, animation, _) =>
+              pageBuilder: (_, animation, __) =>
                   const CrearPublicacionScreen(),
-              transitionsBuilder: (_, animation, _, child) {
+              transitionsBuilder: (_, animation, __, child) {
                 return SlideTransition(
                   position: Tween<Offset>(
                     begin: const Offset(0, 1),
@@ -537,7 +683,8 @@ class _FeedScreenState extends State<FeedScreen> {
                   child: child,
                 );
               },
-              transitionDuration: const Duration(milliseconds: 300),
+              transitionDuration:
+                  const Duration(milliseconds: 300),
             ),
           ),
           backgroundColor: Colors.transparent,
@@ -548,20 +695,20 @@ class _FeedScreenState extends State<FeedScreen> {
     );
   }
 }
-
+ 
 // ── Skeleton Card ────────────────────────────────────────────────────────────
 class _SkeletonCard extends StatefulWidget {
   const _SkeletonCard();
-
+ 
   @override
   State<_SkeletonCard> createState() => _SkeletonCardState();
 }
-
+ 
 class _SkeletonCardState extends State<_SkeletonCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _anim;
-
+ 
   @override
   void initState() {
     super.initState();
@@ -573,26 +720,27 @@ class _SkeletonCardState extends State<_SkeletonCard>
       CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
     );
   }
-
+ 
   @override
   void dispose() {
     _ctrl.dispose();
     super.dispose();
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, _) {
+      builder: (_, __) {
         final color = Color.lerp(
           const Color(0xFF0F1422),
           const Color(0xFF1E2440),
           _anim.value,
         )!;
-
+ 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          margin:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: const Color(0xFF0F1422),
             borderRadius: BorderRadius.circular(16),
@@ -602,8 +750,8 @@ class _SkeletonCardState extends State<_SkeletonCard>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16)),
                 child: Container(
                   width: double.infinity,
                   height: 200,

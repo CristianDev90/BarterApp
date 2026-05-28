@@ -2,40 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/intercambio_service.dart';
-
+import 'perfil_usuario_screen.dart';
+ 
 class ChatScreen extends StatefulWidget {
   final String propuestaId;
   final String otroUsuarioNombre;
   final String otroUsuarioFoto;
-
+  // Bug 5: nuevo parámetro para navegar al perfil desde el chat
+  final String otroUsuarioId;
+ 
   const ChatScreen({
     super.key,
     required this.propuestaId,
     required this.otroUsuarioNombre,
     required this.otroUsuarioFoto,
+    required this.otroUsuarioId,
   });
-
+ 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
-
+ 
 class _ChatScreenState extends State<ChatScreen> {
   final _service = IntercambioService();
   final _mensajeCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
   final _miUid = FirebaseAuth.instance.currentUser?.uid ?? '';
-
+ 
   static const Color _magenta = Color(0xFFCC00FF);
   static const Color _cian = Color(0xFF00DDFF);
   static const Color _fondo = Color(0xFF0A0E1A);
-
+ 
   @override
   void dispose() {
     _mensajeCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
-
+ 
   void _scrollAbajo() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollCtrl.hasClients) {
@@ -47,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     });
   }
-
+ 
   Future<void> _enviar() async {
     final texto = _mensajeCtrl.text.trim();
     if (texto.isEmpty) return;
@@ -58,7 +62,17 @@ class _ChatScreenState extends State<ChatScreen> {
     );
     _scrollAbajo();
   }
-
+ 
+  // Bug 5: navegar al perfil del otro usuario
+  void _irAlPerfil() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PerfilUsuarioScreen(userId: widget.otroUsuarioId),
+      ),
+    );
+  }
+ 
   Widget _buildMensaje(Map<String, dynamic> data) {
     final esMio = data['de_userId'] == _miUid;
     final texto = data['texto'] ?? '';
@@ -66,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final hora = fecha != null
         ? '${fecha.toDate().hour.toString().padLeft(2, '0')}:${fecha.toDate().minute.toString().padLeft(2, '0')}'
         : '';
-
+ 
     return Align(
       alignment: esMio ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -106,7 +120,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,52 +132,71 @@ class _ChatScreenState extends State<ChatScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white54),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [_magenta, _cian]),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: widget.otroUsuarioFoto.isNotEmpty
-                    ? Image.network(widget.otroUsuarioFoto, fit: BoxFit.cover)
-                    : Center(
-                        child: Text(
-                          widget.otroUsuarioNombre.isNotEmpty
-                              ? widget.otroUsuarioNombre[0].toUpperCase()
-                              : 'U',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+        // Bug 5: todo el título es tappable para ir al perfil
+        title: GestureDetector(
+          onTap: _irAlPerfil,
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [_magenta, _cian]),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: widget.otroUsuarioFoto.isNotEmpty
+                      ? Image.network(widget.otroUsuarioFoto, fit: BoxFit.cover)
+                      : Center(
+                          child: Text(
+                            widget.otroUsuarioNombre.isNotEmpty
+                                ? widget.otroUsuarioNombre[0].toUpperCase()
+                                : 'U',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            ShaderMask(
-              shaderCallback: (bounds) =>
-                  const LinearGradient(colors: [_magenta, _cian])
-                      .createShader(bounds),
-              child: Text(
-                widget.otroUsuarioNombre,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ShaderMask(
+                      shaderCallback: (bounds) =>
+                          const LinearGradient(colors: [_magenta, _cian])
+                              .createShader(bounds),
+                      child: Text(
+                        widget.otroUsuarioNombre,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Text(
+                      'Ver perfil',
+                      style: TextStyle(
+                        color: Colors.white38,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       body: Column(
         children: [
-          // Lista de mensajes
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _service.mensajesDeChat(widget.propuestaId),
@@ -173,9 +206,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: CircularProgressIndicator(color: Color(0xFF00DDFF)),
                   );
                 }
-
+ 
                 final mensajes = snap.data?.docs ?? [];
-
+ 
                 if (mensajes.isEmpty) {
                   return const Center(
                     child: Text(
@@ -185,9 +218,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   );
                 }
-
-                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollAbajo());
-
+ 
+                WidgetsBinding.instance
+                    .addPostFrameCallback((_) => _scrollAbajo());
+ 
                 return ListView.builder(
                   controller: _scrollCtrl,
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -200,8 +234,7 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-
-          // Campo de texto
+ 
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: const BoxDecoration(
@@ -237,7 +270,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [_magenta, _cian]),
+                      gradient:
+                          const LinearGradient(colors: [_magenta, _cian]),
                       borderRadius: BorderRadius.circular(22),
                     ),
                     child: const Icon(Icons.send_rounded,

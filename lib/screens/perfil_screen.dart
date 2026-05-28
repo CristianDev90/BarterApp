@@ -56,12 +56,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
     final resultado = await Navigator.push<Map<String, String>>(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, animation, _) => EditarPerfilScreen(
+        pageBuilder: (_, animation, __) => EditarPerfilScreen(
           nombreActual: _nombre,
           bioActual: _bio,
           fotoActual: _fotoUrl,
         ),
-        transitionsBuilder: (_, animation, _, child) =>
+        transitionsBuilder: (_, animation, __, child) =>
             FadeTransition(opacity: animation, child: child),
         transitionDuration: const Duration(milliseconds: 300),
       ),
@@ -75,10 +75,28 @@ class _PerfilScreenState extends State<PerfilScreen> {
     }
   }
  
-  // ── Método centralizado para cerrar sesión ──────────────────────────────
-  // El StreamBuilder en AppRoot detecta el cambio de auth y redirige solo
   Future<void> _cerrarSesion() async {
     await _authService.logout();
+  }
+ 
+  // ── BUG 3: contar trueques reales desde Firestore ────────────────────────
+  Future<int> _contarTrueques() async {
+    final uid = _user?.uid ?? '';
+    if (uid.isEmpty) return 0;
+ 
+    final recibidos = await FirebaseFirestore.instance
+        .collection('intercambios')
+        .where('para_userId', isEqualTo: uid)
+        .where('estado', isEqualTo: 'aceptado')
+        .get();
+ 
+    final enviados = await FirebaseFirestore.instance
+        .collection('intercambios')
+        .where('de_userId', isEqualTo: uid)
+        .where('estado', isEqualTo: 'aceptado')
+        .get();
+ 
+    return recibidos.docs.length + enviados.docs.length;
   }
  
   @override
@@ -117,7 +135,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white54),
-            onPressed: _cerrarSesion, // ✅ CORREGIDO
+            onPressed: _cerrarSesion,
           ),
         ],
       ),
@@ -178,16 +196,16 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   const SizedBox(height: 6),
                   Text(
                     _email,
-                    style:
-                        const TextStyle(color: Colors.white54, fontSize: 14),
+                    style: const TextStyle(
+                        color: Colors.white54, fontSize: 14),
                   ),
                   if (_bio.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     Text(
                       _bio,
                       textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(color: Colors.white60, fontSize: 13),
+                      style: const TextStyle(
+                          color: Colors.white60, fontSize: 13),
                     ),
                   ],
                 ],
@@ -195,21 +213,99 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 28),
  
-            // Info cards
-            _buildInfoCard(
-              icon: Icons.swap_horiz,
-              titulo: 'Trueques realizados',
-              valor: '0',
+            // ── BUG 3: Trueques realizados desde Firestore ───────────────────
+            FutureBuilder<int>(
+              future: _contarTrueques(),
+              builder: (context, snap) {
+                final total = snap.data ?? 0;
+                return _buildInfoCard(
+                  icon: Icons.swap_horiz,
+                  titulo: 'Trueques realizados',
+                  valor: '$total',
+                );
+              },
             ),
             const SizedBox(height: 12),
-            _buildInfoCard(
-              icon: Icons.star_outline,
-              titulo: 'Calificación',
-              valor: '—',
+ 
+            // ── BUG 1: Calificación real desde Firestore ─────────────────────
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('calificaciones')
+                  .where('para_userId', isEqualTo: _user?.uid ?? '')
+                  .snapshots(),
+              builder: (context, snap) {
+                double promedio = 0;
+                int total = 0;
+                if (snap.hasData && snap.data!.docs.isNotEmpty) {
+                  total = snap.data!.docs.length;
+                  double suma = 0;
+                  for (final doc in snap.data!.docs) {
+                    suma += (doc['puntuacion'] as num).toDouble();
+                  }
+                  promedio = suma / total;
+                }
+ 
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F1422),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: Row(
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) =>
+                            const LinearGradient(
+                                    colors: [_magenta, _cian])
+                                .createShader(bounds),
+                        child: const Icon(Icons.star_outline,
+                            color: Colors.white, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                          children: [
+                            const Text('Calificación',
+                                style: TextStyle(
+                                    color: Colors.white60,
+                                    fontSize: 14)),
+                            if (total > 0) ...[
+                              const SizedBox(height: 4),
+                              Row(
+                                children: List.generate(5, (i) {
+                                  return Icon(
+                                    i < promedio.round()
+                                        ? Icons.star_rounded
+                                        : Icons.star_outline_rounded,
+                                    color: Colors.amber,
+                                    size: 16,
+                                  );
+                                }),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      Text(
+                        total == 0
+                            ? '—'
+                            : '${promedio.toStringAsFixed(1)} ($total)',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 32),
  
-            // Título sección
+            // Título sección publicaciones
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [_magenta, _cian],
@@ -230,7 +326,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
               stream: _publicacionesService
                   .obtenerMisPublicaciones(_user?.uid ?? ''),
               builder: (context, snap) {
-                // Skeleton mientras carga
                 if (snap.connectionState == ConnectionState.waiting) {
                   return Column(
                     children: List.generate(
@@ -240,7 +335,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   );
                 }
  
-                // Empty state mejorado
                 if (!snap.hasData || snap.data!.docs.isEmpty) {
                   return Container(
                     padding: const EdgeInsets.symmetric(
@@ -253,11 +347,14 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     child: Column(
                       children: [
                         ShaderMask(
-                          shaderCallback: (bounds) => const LinearGradient(
-                            colors: [_magenta, _cian],
-                          ).createShader(bounds),
-                          child: const Icon(Icons.inventory_2_outlined,
-                              size: 48, color: Colors.white),
+                          shaderCallback: (bounds) =>
+                              const LinearGradient(
+                                      colors: [_magenta, _cian])
+                                  .createShader(bounds),
+                          child: const Icon(
+                              Icons.inventory_2_outlined,
+                              size: 48,
+                              color: Colors.white),
                         ),
                         const SizedBox(height: 14),
                         const Text(
@@ -272,8 +369,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         const Text(
                           'Publica algo para empezar\na hacer trueques',
                           textAlign: TextAlign.center,
-                          style:
-                              TextStyle(color: Colors.white38, fontSize: 13),
+                          style: TextStyle(
+                              color: Colors.white38, fontSize: 13),
                         ),
                         const SizedBox(height: 24),
                         Container(
@@ -295,10 +392,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 12),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius:
+                                    BorderRadius.circular(12),
                               ),
                             ),
-                            icon: const Icon(Icons.add, color: Colors.white),
+                            icon: const Icon(Icons.add,
+                                color: Colors.white),
                             label: const Text(
                               'Crear publicación',
                               style: TextStyle(
@@ -328,12 +427,14 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       onTap: () => Navigator.push(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (_, animation, _) =>
+                          pageBuilder: (_, animation, __) =>
                               DetallePublicacionScreen(
                                   pub: pub, pubId: pubId),
-                          transitionsBuilder: (_, animation, _, child) =>
-                              FadeTransition(
-                                  opacity: animation, child: child),
+                          transitionsBuilder:
+                              (_, animation, __, child) =>
+                                  FadeTransition(
+                                      opacity: animation,
+                                      child: child),
                           transitionDuration:
                               const Duration(milliseconds: 300),
                         ),
@@ -348,8 +449,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         child: Row(
                           children: [
                             ClipRRect(
-                              borderRadius: const BorderRadius.horizontal(
-                                  left: Radius.circular(16)),
+                              borderRadius:
+                                  const BorderRadius.horizontal(
+                                      left: Radius.circular(16)),
                               child: fotoUrl.isNotEmpty
                                   ? Image.network(
                                       fotoUrl,
@@ -371,8 +473,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 4),
+                                padding:
+                                    const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                        horizontal: 4),
                                 child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
@@ -385,7 +489,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                         fontSize: 15,
                                       ),
                                       maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                      overflow:
+                                          TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
@@ -395,24 +500,33 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                         fontSize: 13,
                                       ),
                                       maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
+                                      overflow:
+                                          TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 8),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 3),
+                                      padding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 3),
                                       decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                            colors: [_magenta, _cian]),
+                                        gradient:
+                                            const LinearGradient(
+                                                colors: [
+                                          _magenta,
+                                          _cian
+                                        ]),
                                         borderRadius:
-                                            BorderRadius.circular(20),
+                                            BorderRadius.circular(
+                                                20),
                                       ),
                                       child: Text(
                                         pub['categoria'] ?? '',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 11,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight:
+                                              FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -441,16 +555,21 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                             color: Colors.white54)),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.pop(
-                                            context, false),
-                                        child: const Text('Cancelar',
+                                        onPressed: () =>
+                                            Navigator.pop(
+                                                context, false),
+                                        child: const Text(
+                                            'Cancelar',
                                             style: TextStyle(
-                                                color: Colors.white54)),
+                                                color:
+                                                    Colors.white54)),
                                       ),
                                       TextButton(
-                                        onPressed: () => Navigator.pop(
-                                            context, true),
-                                        child: const Text('Eliminar',
+                                        onPressed: () =>
+                                            Navigator.pop(
+                                                context, true),
+                                        child: const Text(
+                                            'Eliminar',
                                             style: TextStyle(
                                                 color: Colors.red)),
                                       ),
@@ -478,7 +597,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
               width: double.infinity,
               height: 52,
               child: OutlinedButton(
-                onPressed: _cerrarSesion, // ✅ CORREGIDO
+                onPressed: _cerrarSesion,
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red, width: 1.5),
                   shape: RoundedRectangleBorder(
@@ -526,7 +645,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
           Expanded(
             child: Text(
               titulo,
-              style: const TextStyle(color: Colors.white60, fontSize: 14),
+              style: const TextStyle(
+                  color: Colors.white60, fontSize: 14),
             ),
           ),
           Text(
@@ -548,7 +668,8 @@ class _SkeletonPublicacion extends StatefulWidget {
   const _SkeletonPublicacion();
  
   @override
-  State<_SkeletonPublicacion> createState() => _SkeletonPublicacionState();
+  State<_SkeletonPublicacion> createState() =>
+      _SkeletonPublicacionState();
 }
  
 class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
@@ -578,7 +699,7 @@ class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, _) {
+      builder: (_, __) {
         final color = Color.lerp(
           const Color(0xFF0F1422),
           const Color(0xFF1E2440),
@@ -597,7 +718,8 @@ class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
               ClipRRect(
                 borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(16)),
-                child: Container(width: 90, height: 90, color: color),
+                child:
+                    Container(width: 90, height: 90, color: color),
               ),
               const SizedBox(width: 12),
               Expanded(

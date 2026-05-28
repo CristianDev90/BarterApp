@@ -3,36 +3,36 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/intercambio_service.dart';
 import 'chat_screen.dart';
-
+ 
 class IntercambiosScreen extends StatefulWidget {
   const IntercambiosScreen({super.key});
-
+ 
   @override
   State<IntercambiosScreen> createState() => _IntercambiosScreenState();
 }
-
+ 
 class _IntercambiosScreenState extends State<IntercambiosScreen>
     with SingleTickerProviderStateMixin {
   final _service = IntercambioService();
   late TabController _tabCtrl;
   final _miUid = FirebaseAuth.instance.currentUser?.uid ?? '';
-
+ 
   static const Color _magenta = Color(0xFFCC00FF);
   static const Color _cian = Color(0xFF00DDFF);
   static const Color _fondo = Color(0xFF0A0E1A);
-
+ 
   @override
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: 2, vsync: this);
   }
-
+ 
   @override
   void dispose() {
     _tabCtrl.dispose();
     super.dispose();
   }
-
+ 
   Color _colorEstado(String estado) {
     switch (estado) {
       case 'aceptado':
@@ -45,7 +45,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
         return Colors.white38;
     }
   }
-
+ 
   String _labelEstado(String estado) {
     switch (estado) {
       case 'aceptado':
@@ -58,7 +58,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
         return 'Pendiente';
     }
   }
-
+ 
   Future<Map<String, String>> _datosUsuario(String uid) async {
     final doc = await FirebaseFirestore.instance
         .collection('usuarios')
@@ -70,7 +70,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
       'fotoUrl': data?['fotoUrl'] ?? '',
     };
   }
-
+ 
   Future<String> _tituloPub(String pubId) async {
     final doc = await FirebaseFirestore.instance
         .collection('publicaciones')
@@ -78,7 +78,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
         .get();
     return doc.data()?['titulo'] ?? 'Publicación';
   }
-
+ 
   Widget _buildEmpty(String mensaje) {
     return Center(
       child: Column(
@@ -96,21 +96,24 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [_magenta, _cian],
               ).createShader(bounds),
-              child: const Icon(Icons.swap_horiz, size: 40, color: Colors.white),
+              child: const Icon(Icons.swap_horiz,
+                  size: 40, color: Colors.white),
             ),
           ),
           const SizedBox(height: 20),
           Text(
             mensaje,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white54, fontSize: 15),
+            style:
+                const TextStyle(color: Colors.white54, fontSize: 15),
           ),
         ],
       ),
     );
   }
-
-  Future<void> _confirmarEliminar(BuildContext context, String docId) async {
+ 
+  Future<void> _confirmarEliminar(
+      BuildContext context, String docId) async {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -141,7 +144,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
       await _service.eliminarPropuesta(docId);
     }
   }
-
+ 
   Widget _buildTarjeta({
     required DocumentSnapshot doc,
     required bool esRecibido,
@@ -149,9 +152,13 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
     final data = doc.data() as Map<String, dynamic>;
     final estado = data['estado'] ?? 'pendiente';
     final mensaje = data['mensajePropuesta'] ?? '';
-    final otroUid = esRecibido ? data['de_userId'] : data['para_userId'];
+ 
+    // ── BUG 5: capturar otroUid para navegación al perfil desde el chat ────
+    final otroUid = esRecibido
+        ? data['de_userId'] as String? ?? ''
+        : data['para_userId'] as String? ?? '';
     final pubId = data['publicacionId'] ?? '';
-
+ 
     return FutureBuilder<Map<String, String>>(
       future: _datosUsuario(otroUid),
       builder: (context, snapUsuario) {
@@ -162,9 +169,10 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
             final fotoUrl = snapUsuario.data?['fotoUrl'] ?? '';
             final titulo = snapTitulo.data ?? '...';
             final colorEstado = _colorEstado(estado);
-
+ 
             return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              margin: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFF0F1422),
                 borderRadius: BorderRadius.circular(16),
@@ -189,7 +197,8 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(21),
                             child: fotoUrl.isNotEmpty
-                                ? Image.network(fotoUrl, fit: BoxFit.cover)
+                                ? Image.network(fotoUrl,
+                                    fit: BoxFit.cover)
                                 : Center(
                                     child: Text(
                                       nombre.isNotEmpty
@@ -207,7 +216,8 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
                             children: [
                               Text(
                                 nombre,
@@ -221,7 +231,8 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                               Text(
                                 titulo,
                                 style: const TextStyle(
-                                    color: Colors.white54, fontSize: 12),
+                                    color: Colors.white54,
+                                    fontSize: 12),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -232,9 +243,11 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: colorEstado.withValues(alpha: 0.15),
+                            color:
+                                colorEstado.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: colorEstado, width: 1),
+                            border: Border.all(
+                                color: colorEstado, width: 1),
                           ),
                           child: Text(
                             _labelEstado(estado),
@@ -248,7 +261,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                       ],
                     ),
                     const SizedBox(height: 12),
-
+ 
                     // Mensaje
                     Container(
                       width: double.infinity,
@@ -264,7 +277,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                       ),
                     ),
                     const SizedBox(height: 14),
-
+ 
                     // Aceptar / Rechazar (recibido pendiente)
                     if (esRecibido && estado == 'pendiente')
                       Row(
@@ -272,15 +285,19 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
-                                await _service.rechazarIntercambio(doc.id);
+                                await _service
+                                    .rechazarIntercambio(doc.id);
                               },
                               style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Colors.redAccent),
+                                side: const BorderSide(
+                                    color: Colors.redAccent),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                                    borderRadius:
+                                        BorderRadius.circular(10)),
                               ),
                               child: const Text('Rechazar',
-                                  style: TextStyle(color: Colors.redAccent)),
+                                  style: TextStyle(
+                                      color: Colors.redAccent)),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -289,45 +306,53 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                     colors: [_magenta, _cian]),
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius:
+                                    BorderRadius.circular(10),
                               ),
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  await _service.aceptarIntercambio(doc.id);
+                                  await _service
+                                      .aceptarIntercambio(doc.id);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
+                                      borderRadius:
+                                          BorderRadius.circular(10)),
                                 ),
                                 child: const Text('Aceptar',
-                                    style: TextStyle(color: Colors.white)),
+                                    style:
+                                        TextStyle(color: Colors.white)),
                               ),
                             ),
                           ),
                         ],
                       ),
-
+ 
                     // Cancelar (enviado pendiente)
                     if (!esRecibido && estado == 'pendiente')
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
                           onPressed: () async {
-                            await _service.cancelarIntercambio(doc.id);
+                            await _service
+                                .cancelarIntercambio(doc.id);
                           },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.orange),
+                            side: const BorderSide(
+                                color: Colors.orange),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
+                                borderRadius:
+                                    BorderRadius.circular(10)),
                           ),
                           child: const Text('Cancelar propuesta',
-                              style: TextStyle(color: Colors.orange)),
+                              style:
+                                  TextStyle(color: Colors.orange)),
                         ),
                       ),
-
-                    // Botón chat (propuesta aceptada)
+ 
+                    // ── BUG 5: Botón chat con otroUsuarioId para ir al perfil
                     if (estado == 'aceptado')
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -347,6 +372,8 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                                     propuestaId: doc.id,
                                     otroUsuarioNombre: nombre,
                                     otroUsuarioFoto: fotoUrl,
+                                    // ← nuevo parámetro para ir al perfil
+                                    otroUsuarioId: otroUid,
                                   ),
                                 ),
                               ),
@@ -354,17 +381,21 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                                    borderRadius:
+                                        BorderRadius.circular(10)),
                               ),
-                              icon: const Icon(Icons.chat_bubble_outline,
-                                  color: Colors.white, size: 18),
+                              icon: const Icon(
+                                  Icons.chat_bubble_outline,
+                                  color: Colors.white,
+                                  size: 18),
                               label: const Text('Abrir chat',
-                                  style: TextStyle(color: Colors.white)),
+                                  style:
+                                      TextStyle(color: Colors.white)),
                             ),
                           ),
                         ),
                       ),
-
+ 
                     // Eliminar del historial (cualquier estado terminado)
                     if (estado != 'pendiente')
                       Padding(
@@ -375,9 +406,11 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                             onPressed: () =>
                                 _confirmarEliminar(context, doc.id),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Colors.red),
+                              side: const BorderSide(
+                                  color: Colors.red),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
+                                  borderRadius:
+                                      BorderRadius.circular(10)),
                             ),
                             icon: const Icon(Icons.delete_outline,
                                 color: Colors.red, size: 18),
@@ -395,7 +428,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
       },
     );
   }
-
+ 
   Widget _buildLista(Stream<QuerySnapshot> stream, bool esRecibido) {
     return StreamBuilder<QuerySnapshot>(
       stream: stream,
@@ -405,19 +438,20 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
             child: CircularProgressIndicator(color: Color(0xFF00DDFF)),
           );
         }
-
+ 
         final docs = (snap.data?.docs ?? []).where((doc) {
           final data = doc.data() as Map<String, dynamic>;
-          final ocultoPara = List<String>.from(data['ocultoPara'] ?? []);
+          final ocultoPara =
+              List<String>.from(data['ocultoPara'] ?? []);
           return !ocultoPara.contains(_miUid);
         }).toList();
-
+ 
         if (docs.isEmpty) {
           return _buildEmpty(esRecibido
               ? 'Nadie te ha propuesto\nun trueque todavía'
               : 'No has propuesto\nningún trueque todavía');
         }
-
+ 
         return ListView.builder(
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount: docs.length,
@@ -429,7 +463,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
       },
     );
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -438,7 +472,8 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
         backgroundColor: const Color(0xFF0F1422),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white54),
+          icon:
+              const Icon(Icons.arrow_back_ios, color: Colors.white54),
           onPressed: () => Navigator.pop(context),
         ),
         title: ShaderMask(
