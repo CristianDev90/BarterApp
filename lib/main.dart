@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/feed_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/registro_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/auth_service.dart';
 import 'services/notificaciones_service.dart';
 
@@ -31,20 +32,48 @@ class MyApp extends StatelessWidget {
       routes: {
         '/registro': (context) => RegistroScreen(authService: authService),
       },
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (snapshot.hasData) {
-            return const FeedScreen();
-          }
-          return LoginScreen(authService: authService);
-        },
-      ),
+      home: const AppRoot(),
+    );
+  }
+}
+
+class AppRoot extends StatefulWidget {
+  const AppRoot({super.key});
+
+  @override
+  State<AppRoot> createState() => _AppRootState();
+}
+
+class _AppRootState extends State<AppRoot> {
+  bool _mostrarSplash = true;
+  final authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 2200), () {
+      if (mounted) setState(() => _mostrarSplash = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_mostrarSplash) return const SplashScreen();
+
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Color(0xFF0A0E1A),
+            body: Center(
+              child: CircularProgressIndicator(color: Color(0xFF00DDFF)),
+            ),
+          );
+        }
+        if (snapshot.hasData) return const FeedScreen();
+        return LoginScreen(authService: authService);
+      },
     );
   }
 }
