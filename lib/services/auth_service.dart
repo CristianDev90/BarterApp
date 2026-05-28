@@ -81,6 +81,18 @@ class AuthService {
     }
   }
 
+  // ─── RESTABLECER CONTRASEÑA ───────────────────────────────────────────────────
+  Future<void> restablecerContrasena(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException {
+      rethrow;
+    } catch (e) {
+      _logger.e('Error al restablecer contraseña: $e');
+      rethrow;
+    }
+  }
+
   // ─── TRADUCIR ERRORES ─────────────────────────────────────────────────────────
   String traducirError(FirebaseAuthException e) {
     switch (e.code) {

@@ -5,13 +5,11 @@ import 'screens/feed_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/registro_screen.dart';
 import 'services/auth_service.dart';
-import 'services/firestore_config.dart';
 import 'services/notificaciones_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await FirestoreConfig.configurar();
   await NotificacionesService().inicializar();
   runApp(const MyApp());
 }
@@ -31,7 +29,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: {
-        '/registro': (context) => const RegistroScreen(),
+        '/registro': (context) => RegistroScreen(authService: authService),
       },
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),

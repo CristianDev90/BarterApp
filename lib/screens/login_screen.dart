@@ -18,7 +18,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _verPassword = false;
   bool _canLogin = false;
 
-  // Colores del logo
   static const Color _magenta = Color(0xFFCC00FF);
   static const Color _cian = Color(0xFF00DDFF);
   static const Color _fondo = Color(0xFF0A0E1A);
@@ -64,6 +63,95 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _mostrarDialogoRestablecer() async {
+    final emailCtrl = TextEditingController(text: _emailController.text.trim());
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF0F1422),
+        title: const Text(
+          'Restablecer contraseña',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.',
+              style: TextStyle(color: Colors.white54, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Correo electrónico',
+                labelStyle: const TextStyle(color: Colors.white54),
+                prefixIcon: const Icon(Icons.email_outlined, color: Colors.white38),
+                filled: true,
+                fillColor: Colors.white10,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _cian, width: 1.5),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar',
+                style: TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () async {
+              final email = emailCtrl.text.trim();
+              if (email.isEmpty) return;
+              Navigator.pop(context);
+              try {
+                await widget.authService.restablecerContrasena(email);
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Correo de restablecimiento enviado. Revisa tu bandeja.'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } on FirebaseAuthException catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(widget.authService.traducirError(e)),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [_magenta, _cian],
+              ).createShader(bounds),
+              child: const Text(
+                'Enviar',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,11 +163,9 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 60),
 
-              // Logo
               Image.asset('assets/images/logo.png', height: 120),
               const SizedBox(height: 12),
 
-              // Título con gradiente
               ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
                   colors: [_magenta, _cian],
@@ -100,7 +186,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 48),
 
-              // Campo Email
               _buildTextField(
                 controller: _emailController,
                 label: 'Correo electrónico',
@@ -109,7 +194,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Campo Contraseña
               _buildTextField(
                 controller: _passwordController,
                 label: 'Contraseña',
@@ -123,9 +207,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () => setState(() => _verPassword = !_verPassword),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 8),
 
-              // Botón login con gradiente
+              // Olvidaste tu contraseña
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: _mostrarDialogoRestablecer,
+                  child: const Text(
+                    '¿Olvidaste tu contraseña?',
+                    style: TextStyle(color: Colors.white38, fontSize: 13),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -161,7 +257,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Ir al registro
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
