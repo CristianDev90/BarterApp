@@ -5,10 +5,12 @@ import 'screens/feed_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/registro_screen.dart';
 import 'services/auth_service.dart';
+import 'services/notificaciones_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificacionesService().inicializar();
   runApp(const MyApp());
 }
 

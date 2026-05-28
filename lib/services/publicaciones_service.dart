@@ -24,16 +24,59 @@ class PublicacionesService {
     });
   }
 
-  // Obtener todas las publicaciones en tiempo real
+  // Todas las publicaciones activas ordenadas por fecha
   Stream<QuerySnapshot> obtenerPublicaciones() {
     return _db
         .collection('publicaciones')
+        .where('activa', isEqualTo: true)
         .orderBy('fecha', descending: true)
         .snapshots();
   }
 
-  // Eliminar una publicación
+  // Publicaciones filtradas por categoría
+  Stream<QuerySnapshot> obtenerPorCategoria(String categoria) {
+    return _db
+        .collection('publicaciones')
+        .where('activa', isEqualTo: true)
+        .where('categoria', isEqualTo: categoria)
+        .orderBy('fecha', descending: true)
+        .snapshots();
+  }
+
+  // Publicaciones del usuario actual
+  Stream<QuerySnapshot> obtenerMisPublicaciones() {
+    final userId = _auth.currentUser!.uid;
+    return _db
+        .collection('publicaciones')
+        .where('userId', isEqualTo: userId)
+        .where('activa', isEqualTo: true)
+        .orderBy('fecha', descending: true)
+        .snapshots();
+  }
+
+  // Buscar publicaciones por título
+  Future<List<QueryDocumentSnapshot>> buscarPorTitulo(String texto) async {
+    final texto_lower = texto.toLowerCase();
+    final resultado = await _db
+        .collection('publicaciones')
+        .where('activa', isEqualTo: true)
+        .orderBy('titulo')
+        .startAt([texto_lower])
+        .endAt(['$texto_lower\uf8ff'])
+        .get();
+    return resultado.docs;
+  }
+
+  // Eliminar (desactivar) una publicación
   Future<void> eliminarPublicacion(String publicacionId) async {
-    await _db.collection('publicaciones').doc(publicacionId).delete();
+    await _db
+        .collection('publicaciones')
+        .doc(publicacionId)
+        .update({'activa': false});
+  }
+
+  // Obtener una publicación por ID
+  Future<DocumentSnapshot> obtenerPublicacion(String publicacionId) async {
+    return await _db.collection('publicaciones').doc(publicacionId).get();
   }
 }
