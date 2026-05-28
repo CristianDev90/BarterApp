@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import '../services/imagen_service.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
@@ -52,10 +54,19 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   Future<void> _seleccionarFoto() async {
     final XFile? imagen = await _picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 80,
+      imageQuality: 90,
     );
-    if (imagen != null) {
-      setState(() => _imagenSeleccionada = File(imagen.path));
+    if (imagen == null || !mounted) return;
+
+    final File? recortada = await Navigator.push<File>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _CropScreen(imagePath: imagen.path),
+      ),
+    );
+
+    if (recortada != null && mounted) {
+      setState(() => _imagenSeleccionada = recortada);
     }
   }
 
@@ -147,8 +158,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-
-            // Avatar con botón de cambiar foto
             GestureDetector(
               onTap: _seleccionarFoto,
               child: Stack(
@@ -168,14 +177,10 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                       borderRadius: BorderRadius.circular(50),
                       child: _imagenSeleccionada != null
                           ? Image.file(_imagenSeleccionada!,
-                              fit: BoxFit.cover,
-                              width: 100,
-                              height: 100)
+                              fit: BoxFit.cover, width: 100, height: 100)
                           : _fotoUrl != null
                               ? Image.network(_fotoUrl!,
-                                  fit: BoxFit.cover,
-                                  width: 100,
-                                  height: 100)
+                                  fit: BoxFit.cover, width: 100, height: 100)
                               : Center(
                                   child: ValueListenableBuilder(
                                     valueListenable: _nombreCtrl,
@@ -199,7 +204,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                                 ),
                     ),
                   ),
-                  // Ícono de cámara
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -226,8 +230,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               style: TextStyle(color: Colors.white38, fontSize: 12),
             ),
             const SizedBox(height: 28),
-
-            // Campo nombre
             _buildTextField(
               controller: _nombreCtrl,
               label: 'Nombre completo',
@@ -235,8 +237,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               capitalization: TextCapitalization.words,
             ),
             const SizedBox(height: 16),
-
-            // Campo biografía
             _buildTextField(
               controller: _bioCtrl,
               label: 'Biografía',
@@ -245,8 +245,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               hint: 'Cuéntanos algo sobre ti...',
             ),
             const SizedBox(height: 32),
-
-            // Botón guardar
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -316,4 +314,223 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       ),
     );
   }
+}
+
+// ── Pantalla de recorte circular ────────────────────────────────────────────
+class _CropScreen extends StatefulWidget {
+  final String imagePath;
+  const _CropScreen({required this.imagePath});
+
+  @override
+  State<_CropScreen> createState() => _CropScreenState();
+}
+
+class _CropScreenState extends State<_CropScreen> {
+  ui.Image? _imagen;
+  bool _procesando = false;
+  double _scale = 1.0;
+  double _baseScale = 1.0;
+  Offset _offset = Offset.zero;
+  Offset _startOffset = Offset.zero;
+
+  static const Color _magenta = Color(0xFFCC00FF);
+  static const Color _cian = Color(0xFF00DDFF);
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarImagen();
+  }
+
+  Future<void> _cargarImagen() async {
+    final bytes = await File(widget.imagePath).readAsBytes();
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    if (mounted) setState(() => _imagen = frame.image);
+  }
+
+  Future<void> _confirmar() async {
+    if (_imagen == null) return;
+    setState(() => _procesando = true);
+
+    try {
+      const outputSize = 300.0;
+      final screenSize = MediaQuery.of(context).size;
+      final circleRadius = screenSize.width * 0.42;
+      final circleCenterX = screenSize.width / 2;
+      final circleCenterY = screenSize.height / 2;
+
+      final srcW = _imagen!.width.toDouble();
+      final srcH = _imagen!.height.toDouble();
+
+      final baseImgScale = screenSize.width / srcW;
+      final totalScale = baseImgScale * _scale;
+
+      final renderedW = srcW * totalScale;
+      final renderedH = srcH * totalScale;
+
+      final imgLeft = (screenSize.width - renderedW) / 2 + _offset.dx;
+      final imgTop = (screenSize.height - renderedH) / 2 + _offset.dy;
+
+      final circleLeft = circleCenterX - circleRadius;
+      final circleTop = circleCenterY - circleRadius;
+
+      final srcLeft = (circleLeft - imgLeft) / totalScale;
+      final srcTop = (circleTop - imgTop) / totalScale;
+      final srcDiameter = (circleRadius * 2) / totalScale;
+
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      canvas.clipPath(
+        Path()..addOval(Rect.fromLTWH(0, 0, outputSize, outputSize)),
+      );
+
+      canvas.drawImageRect(
+        _imagen!,
+        Rect.fromLTWH(srcLeft, srcTop, srcDiameter, srcDiameter),
+        Rect.fromLTWH(0, 0, outputSize, outputSize),
+        Paint(),
+      );
+
+      final picture = recorder.endRecording();
+      final img =
+          await picture.toImage(outputSize.toInt(), outputSize.toInt());
+      final pngBytes =
+          await img.toByteData(format: ui.ImageByteFormat.png);
+
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/avatar_crop.png');
+      await file.writeAsBytes(pngBytes!.buffer.asUint8List());
+
+      if (mounted) Navigator.pop(context, file);
+    } catch (e) {
+      if (mounted) setState(() => _procesando = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0F1422),
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.white54),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Ajustar foto',
+            style: TextStyle(color: Colors.white, fontSize: 18)),
+        actions: [
+          TextButton(
+            onPressed: _procesando ? null : _confirmar,
+            child: _procesando
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        color: Colors.white, strokeWidth: 2),
+                  )
+                : ShaderMask(
+                    shaderCallback: (b) => const LinearGradient(
+                      colors: [_magenta, _cian],
+                    ).createShader(b),
+                    child: const Text(
+                      'Usar',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+      body: _imagen == null
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF00DDFF)))
+          : GestureDetector(
+              onScaleStart: (details) {
+                _baseScale = _scale;
+                _startOffset = details.focalPoint - _offset;
+              },
+              onScaleUpdate: (details) {
+                setState(() {
+                  _scale = (_baseScale * details.scale).clamp(0.5, 5.0);
+                  _offset = details.focalPoint - _startOffset;
+                });
+              },
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Transform.translate(
+                      offset: _offset,
+                      child: Transform.scale(
+                        scale: _scale,
+                        child: Center(
+                          child: Image.file(
+                            File(widget.imagePath),
+                            width: screenSize.width,
+                            fit: BoxFit.fitWidth,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  IgnorePointer(
+                    child: CustomPaint(
+                      size: Size(screenSize.width, screenSize.height),
+                      painter: _CircleOverlayPainter(
+                          screenSize.width, screenSize.height),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 32,
+                    left: 0,
+                    right: 0,
+                    child: const Text(
+                      'Mueve y pellizca para ajustar',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white60, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+}
+
+class _CircleOverlayPainter extends CustomPainter {
+  final double w, h;
+  _CircleOverlayPainter(this.w, this.h);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final radius = w * 0.42;
+    final center = Offset(w / 2, h / 2);
+
+    final fullRect = Rect.fromLTWH(0, 0, w, h);
+    final circlePath =
+        Path()..addOval(Rect.fromCircle(center: center, radius: radius));
+    final overlay = Path.combine(
+        PathOperation.difference, Path()..addRect(fullRect), circlePath);
+
+    canvas.drawPath(
+        overlay, Paint()..color = Colors.black.withOpacity(0.6));
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..color = Colors.white54
+        ..strokeWidth = 1.5,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
 }
