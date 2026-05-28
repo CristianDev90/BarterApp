@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'publicaciones_service.dart';
+import '../services/publicaciones_service.dart';
 import 'crear_publicacion_screen.dart';
 
 class FeedScreen extends StatelessWidget {
@@ -40,11 +40,10 @@ class FeedScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Mostrar foto si existe
                     if (fotoUrl.isNotEmpty)
                       ClipRRect(
                         borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(12)),
+                            top: Radius.circular(12)),
                         child: Image.network(
                           fotoUrl,
                           width: double.infinity,
@@ -54,7 +53,7 @@ class FeedScreen extends StatelessWidget {
                       ),
                     ListTile(
                       title: Text(pub['titulo'] ?? '',
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

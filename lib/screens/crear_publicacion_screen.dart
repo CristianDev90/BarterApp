@@ -107,7 +107,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
-            value: _categoriaSeleccionada,
+            initialValue: _categoriaSeleccionada,
             decoration: const InputDecoration(labelText: 'Categoría'),
             items: _categorias.map((cat) =>
               DropdownMenuItem(value: cat, child: Text(cat))

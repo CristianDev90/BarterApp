@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
+import 'registro_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
@@ -15,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _loading = false;
   bool _canLogin = false;
+  bool _verPassword = false;
 
   @override
   void initState() {
@@ -40,34 +43,22 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, ingrese email y contraseña')),
-      );
-      return;
-    }
-
     setState(() => _loading = true);
-
     try {
-      await widget.authService.login(email, password);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bienvenido')),
+      await widget.authService.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(
+          content: Text(widget.authService.traducirError(e)),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -89,8 +80,14 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 16),
             TextField(
               controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
+              obscureText: !_verPassword,
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                suffixIcon: IconButton(
+                  icon: Icon(_verPassword ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () => setState(() => _verPassword = !_verPassword),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             _loading
@@ -101,7 +98,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
             const SizedBox(height: 16),
             TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/registro'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => RegistroScreen(authService: widget.authService),
+                ),
+              ),
               child: const Text('Crear cuenta'),
             ),
           ],

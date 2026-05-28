@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'feed_screen.dart';
-import 'login_screen.dart';
-import 'auth_service.dart';
-import 'registro_screen.dart';
+import 'screens/feed_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/registro_screen.dart';
+import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,29 +17,30 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = AuthService();
+
     return MaterialApp(
       title: 'BarterApp',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
       routes: {
-        '/registro': (context) => const RegistroScreen(),
+        '/registro': (context) => RegistroScreen(authService: authService),
       },
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          // Cargando
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          // Usuario logueado → Feed
           if (snapshot.hasData) {
             return const FeedScreen();
           }
-          // Usuario no logueado → Login
-          return LoginScreen(authService: AuthService());
+          return LoginScreen(authService: authService);
         },
       ),
     );
