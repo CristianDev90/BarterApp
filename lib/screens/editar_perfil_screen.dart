@@ -99,7 +99,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
           .update({
         'nombre': nombre,
         'bio': _bioCtrl.text.trim(),
-        if (nuevaFotoUrl != null) 'fotoUrl': nuevaFotoUrl,
+        'fotoUrl': ?nuevaFotoUrl,
       });
 
       if (!mounted) return;

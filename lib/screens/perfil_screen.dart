@@ -56,12 +56,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
     final resultado = await Navigator.push<Map<String, String>>(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, animation, __) => EditarPerfilScreen(
+        pageBuilder: (_, animation, _) => EditarPerfilScreen(
           nombreActual: _nombre,
           bioActual: _bio,
           fotoActual: _fotoUrl,
         ),
-        transitionsBuilder: (_, animation, __, child) =>
+        transitionsBuilder: (_, animation, _, child) =>
             FadeTransition(opacity: animation, child: child),
         transitionDuration: const Duration(milliseconds: 300),
       ),
@@ -73,14 +73,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
         _fotoUrl = resultado['fotoUrl'] ?? _fotoUrl;
       });
     }
-  }
-
-  String _formatFecha(Timestamp? ts) {
-    if (ts == null) return '';
-    final dt = ts.toDate();
-    final hora = dt.hour.toString().padLeft(2, '0');
-    final min = dt.minute.toString().padLeft(2, '0');
-    return '${dt.day}/${dt.month}/${dt.year} $hora:$min';
   }
 
   @override
@@ -119,7 +111,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white54),
-            onPressed: () async => await _authService.logout(),
+            onPressed: () async {
+              await _authService.logout();
+            },
           ),
         ],
       ),
@@ -148,8 +142,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(50),
                       child: _fotoUrl.isNotEmpty
-                          ? Image.network(_fotoUrl,
-                              fit: BoxFit.cover, width: 100, height: 100)
+                          ? Image.network(
+                              _fotoUrl,
+                              fit: BoxFit.cover,
+                              width: 100,
+                              height: 100,
+                            )
                           : Center(
                               child: Text(
                                 _nombre.isNotEmpty
@@ -176,7 +174,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   const SizedBox(height: 6),
                   Text(
                     _email,
-                    style: const TextStyle(color: Colors.white54, fontSize: 14),
+                    style:
+                        const TextStyle(color: Colors.white54, fontSize: 14),
                   ),
                   if (_bio.isNotEmpty) ...[
                     const SizedBox(height: 10),
@@ -192,275 +191,21 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 28),
 
-            // Card trueques realizados
+            // Info cards
             _buildInfoCard(
               icon: Icons.swap_horiz,
               titulo: 'Trueques realizados',
               valor: '0',
             ),
             const SizedBox(height: 12),
-
-            // Card calificación con promedio real
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('calificaciones')
-                  .where('para_userId', isEqualTo: _user?.uid)
-                  .snapshots(),
-              builder: (context, snap) {
-                double promedio = 0;
-                int total = 0;
-                if (snap.hasData && snap.data!.docs.isNotEmpty) {
-                  total = snap.data!.docs.length;
-                  double suma = 0;
-                  for (final doc in snap.data!.docs) {
-                    suma += (doc['puntuacion'] as num).toDouble();
-                  }
-                  promedio = suma / total;
-                }
-
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F1422),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white10),
-                  ),
-                  child: Row(
-                    children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [_magenta, _cian],
-                        ).createShader(bounds),
-                        child: const Icon(Icons.star_outline,
-                            color: Colors.white, size: 28),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Calificación',
-                                style: TextStyle(
-                                    color: Colors.white60, fontSize: 14)),
-                            if (total > 0) ...[
-                              const SizedBox(height: 4),
-                              Row(
-                                children: List.generate(5, (i) {
-                                  return Icon(
-                                    i < promedio.round()
-                                        ? Icons.star_rounded
-                                        : Icons.star_outline_rounded,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  );
-                                }),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Text(
-                        total == 0
-                            ? '—'
-                            : '${promedio.toStringAsFixed(1)} ($total)',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+            _buildInfoCard(
+              icon: Icons.star_outline,
+              titulo: 'Calificación',
+              valor: '—',
             ),
             const SizedBox(height: 32),
 
-            // Sección reseñas
-            ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [_magenta, _cian],
-              ).createShader(bounds),
-              child: const Text(
-                'Reseñas recibidas',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('calificaciones')
-                  .where('para_userId', isEqualTo: _user?.uid)
-                  .orderBy('fecha', descending: true)
-                  .snapshots(),
-              builder: (context, snap) {
-                if (snap.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                        color: Color(0xFF00DDFF)),
-                  );
-                }
-
-                if (!snap.hasData || snap.data!.docs.isEmpty) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 32, horizontal: 24),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F1422),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white10),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Aún no tienes reseñas',
-                        style:
-                            TextStyle(color: Colors.white38, fontSize: 14),
-                      ),
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: snap.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    final data = snap.data!.docs[index].data()
-                        as Map<String, dynamic>;
-                    final puntuacion =
-                        (data['puntuacion'] as num).toDouble();
-                    final comentario = data['comentario'] ?? '';
-                    final fecha = data['fecha'] as Timestamp?;
-                    final deUserId = data['de_userId'] ?? '';
-
-                    return FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection('usuarios')
-                          .doc(deUserId)
-                          .get(),
-                      builder: (context, snapUser) {
-                        final nombreDe =
-                            snapUser.data?.get('nombre') ?? '...';
-                        final fotoDe =
-                            snapUser.data?.get('fotoUrl') ?? '';
-
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0F1422),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white10),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Nombre + avatar + fecha
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 38,
-                                    height: 38,
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                          colors: [_magenta, _cian]),
-                                      borderRadius:
-                                          BorderRadius.circular(19),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius:
-                                          BorderRadius.circular(19),
-                                      child: fotoDe.isNotEmpty
-                                          ? Image.network(fotoDe,
-                                              fit: BoxFit.cover)
-                                          : Center(
-                                              child: Text(
-                                                nombreDe.isNotEmpty
-                                                    ? nombreDe[0]
-                                                        .toUpperCase()
-                                                    : 'U',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight:
-                                                      FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          nombreDe,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        Text(
-                                          _formatFecha(fecha),
-                                          style: const TextStyle(
-                                              color: Colors.white38,
-                                              fontSize: 11),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  // Estrellas
-                                  Row(
-                                    children: List.generate(5, (i) {
-                                      return Icon(
-                                        i < puntuacion.round()
-                                            ? Icons.star_rounded
-                                            : Icons.star_outline_rounded,
-                                        color: Colors.amber,
-                                        size: 18,
-                                      );
-                                    }),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              // Comentario
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors.white.withValues(alpha: 0.05),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  comentario,
-                                  style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 13,
-                                      height: 1.4),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-            const SizedBox(height: 32),
-
-            // Título publicaciones
+            // Título sección
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [_magenta, _cian],
@@ -476,18 +221,22 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 14),
 
-            // Lista publicaciones
+            // Lista de mis publicaciones
             StreamBuilder<QuerySnapshot>(
               stream: _publicacionesService
                   .obtenerMisPublicaciones(_user?.uid ?? ''),
               builder: (context, snap) {
+                // Skeleton mientras carga
                 if (snap.connectionState == ConnectionState.waiting) {
                   return Column(
                     children: List.generate(
-                        2, (_) => const _SkeletonPublicacion()),
+                      2,
+                      (_) => const _SkeletonPublicacion(),
+                    ),
                   );
                 }
 
+                // Empty state mejorado
                 if (!snap.hasData || snap.data!.docs.isEmpty) {
                   return Container(
                     padding: const EdgeInsets.symmetric(
@@ -519,8 +268,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         const Text(
                           'Publica algo para empezar\na hacer trueques',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.white38, fontSize: 13),
+                          style:
+                              TextStyle(color: Colors.white38, fontSize: 13),
                         ),
                         const SizedBox(height: 24),
                         Container(
@@ -560,6 +309,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                 }
 
                 final docs = snap.data!.docs;
+
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -574,10 +324,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       onTap: () => Navigator.push(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (_, animation, __) =>
+                          pageBuilder: (_, animation, _) =>
                               DetallePublicacionScreen(
                                   pub: pub, pubId: pubId),
-                          transitionsBuilder: (_, animation, __, child) =>
+                          transitionsBuilder: (_, animation, _, child) =>
                               FadeTransition(
                                   opacity: animation, child: child),
                           transitionDuration:
@@ -597,10 +347,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               borderRadius: const BorderRadius.horizontal(
                                   left: Radius.circular(16)),
                               child: fotoUrl.isNotEmpty
-                                  ? Image.network(fotoUrl,
+                                  ? Image.network(
+                                      fotoUrl,
                                       width: 90,
                                       height: 90,
-                                      fit: BoxFit.cover)
+                                      fit: BoxFit.cover,
+                                    )
                                   : Container(
                                       width: 90,
                                       height: 90,
@@ -669,15 +421,18 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               icon: const Icon(Icons.delete_outline,
                                   color: Colors.red, size: 20),
                               onPressed: () async {
-                                final confirmar = await showDialog<bool>(
+                                final confirmar =
+                                    await showDialog<bool>(
                                   context: context,
                                   builder: (_) => AlertDialog(
                                     backgroundColor:
                                         const Color(0xFF0F1422),
-                                    title: const Text('Eliminar publicación',
+                                    title: const Text(
+                                        'Eliminar publicación',
                                         style: TextStyle(
                                             color: Colors.white)),
-                                    content: const Text('¿Estás seguro?',
+                                    content: const Text(
+                                        '¿Estás seguro?',
                                         style: TextStyle(
                                             color: Colors.white54)),
                                     actions: [
@@ -714,12 +469,14 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Cerrar sesión
+            // Botón cerrar sesión
             SizedBox(
               width: double.infinity,
               height: 52,
               child: OutlinedButton(
-                onPressed: () async => await _authService.logout(),
+                onPressed: () async {
+                  await _authService.logout();
+                },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red, width: 1.5),
                   shape: RoundedRectangleBorder(
@@ -784,7 +541,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
   }
 }
 
-// ── Skeleton ─────────────────────────────────────────────────────────────────
+// ── Skeleton para publicaciones del perfil ───────────────────────────────────
 class _SkeletonPublicacion extends StatefulWidget {
   const _SkeletonPublicacion();
 
@@ -819,12 +576,13 @@ class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __) {
+      builder: (_, _) {
         final color = Color.lerp(
           const Color(0xFF0F1422),
           const Color(0xFF1E2440),
           _anim.value,
         )!;
+
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(

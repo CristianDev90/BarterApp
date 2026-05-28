@@ -146,13 +146,9 @@ class _FeedScreenState extends State<FeedScreen> {
                 final seleccionada = _categoriaSeleccionada == cat ||
                     (cat == 'Todos' && _categoriaSeleccionada == null);
                 return GestureDetector(
-                  onTap: () {
-                    _searchController.clear();
-                    setState(() {
-                      _categoriaSeleccionada = cat == 'Todos' ? null : cat;
-                      _busqueda = '';
-                    });
-                  },
+                  onTap: () => setState(() {
+                    _categoriaSeleccionada = cat == 'Todos' ? null : cat;
+                  }),
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -195,7 +191,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount: 4,
-                    itemBuilder: (_, __) => const _SkeletonCard(),
+                    itemBuilder: (_, _) => const _SkeletonCard(),
                   );
                 }
 
@@ -323,9 +319,7 @@ class _FeedScreenState extends State<FeedScreen> {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          _busqueda.isNotEmpty
-                              ? 'Sin resultados para\n"$_busqueda"'
-                              : 'Sin publicaciones\nen esta categoría',
+                          'Sin resultados para\n"$_busqueda"',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white54,
@@ -334,17 +328,16 @@ class _FeedScreenState extends State<FeedScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        if (_busqueda.isNotEmpty)
-                          TextButton(
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _busqueda = '');
-                            },
-                            child: const Text(
-                              'Limpiar búsqueda',
-                              style: TextStyle(color: Color(0xFF00DDFF)),
-                            ),
+                        TextButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _busqueda = '');
+                          },
+                          child: const Text(
+                            'Limpiar búsqueda',
+                            style: TextStyle(color: Color(0xFF00DDFF)),
                           ),
+                        ),
                       ],
                     ),
                   );
@@ -369,12 +362,12 @@ class _FeedScreenState extends State<FeedScreen> {
                         onTap: () => Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (_, animation, __) =>
+                            pageBuilder: (_, animation, _) =>
                                 DetallePublicacionScreen(
                               pub: pub,
                               pubId: pubId,
                             ),
-                            transitionsBuilder: (_, animation, __, child) =>
+                            transitionsBuilder: (_, animation, _, child) =>
                                 FadeTransition(
                                     opacity: animation, child: child),
                             transitionDuration:
@@ -438,7 +431,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                                   content: const Text(
                                                     '¿Estás seguro?',
                                                     style: TextStyle(
-                                                        color: Colors.white54),
+                                                        color:
+                                                            Colors.white54),
                                                   ),
                                                   actions: [
                                                     TextButton(
@@ -529,9 +523,9 @@ class _FeedScreenState extends State<FeedScreen> {
           onPressed: () => Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (_, animation, __) =>
+              pageBuilder: (_, animation, _) =>
                   const CrearPublicacionScreen(),
-              transitionsBuilder: (_, animation, __, child) {
+              transitionsBuilder: (_, animation, _, child) {
                 return SlideTransition(
                   position: Tween<Offset>(
                     begin: const Offset(0, 1),
@@ -590,7 +584,7 @@ class _SkeletonCardState extends State<_SkeletonCard>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __) {
+      builder: (_, _) {
         final color = Color.lerp(
           const Color(0xFF0F1422),
           const Color(0xFF1E2440),
