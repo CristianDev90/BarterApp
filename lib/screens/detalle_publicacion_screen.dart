@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/publicaciones_service.dart';
+import 'proponer_intercambio_screen.dart';
 
 class DetallePublicacionScreen extends StatelessWidget {
   final Map<String, dynamic> pub;
@@ -169,14 +170,18 @@ class DetallePublicacionScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Función de trueque próximamente'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          },
+onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ProponerIntercambioScreen(
+        publicacionId: pubId,
+        propietarioId: pub['userId'],
+        tituloPub: pub['titulo'] ?? '',
+      ),
+    ),
+  );
+},
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
