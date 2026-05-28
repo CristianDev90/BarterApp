@@ -90,8 +90,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
       String? nuevaFotoUrl = _fotoUrl;
 
-      if (_imagenSeleccionada != null) {
-        nuevaFotoUrl = await _imagenService.subirImagen(_imagenSeleccionada!);
+      if (_imagenSeleccionada case final img?) {
+        nuevaFotoUrl = await _imagenService.subirImagen(img);
       }
 
       await FirebaseFirestore.instance
@@ -520,7 +520,7 @@ class _CircleOverlayPainter extends CustomPainter {
         PathOperation.difference, Path()..addRect(fullRect), circlePath);
 
     canvas.drawPath(
-        overlay, Paint()..color = Colors.black.withOpacity(0.6));
+        overlay, Paint()..color = Colors.black.withValues(alpha: 0.6));
     canvas.drawCircle(
       center,
       radius,

@@ -15,7 +15,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   logger: ^2.0.0
   flutter_image_compress: ^2.1.0
-  path_provider: ^2.1.2
+  path_provider: ^2.1.5
   firebase_messaging: ^15.2.10
   flutter_local_notifications: ^17.2.4
   cloudinary_public: ^0.23.0

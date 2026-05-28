@@ -5,6 +5,7 @@ import '../services/publicaciones_service.dart';
 import 'crear_publicacion_screen.dart';
 import 'perfil_screen.dart';
 import 'detalle_publicacion_screen.dart';
+import 'intercambios_screen.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -77,6 +78,13 @@ class _FeedScreenState extends State<FeedScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz, color: Colors.white54),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const IntercambiosScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.person_outline, color: Colors.white54),
             onPressed: () => Navigator.push(

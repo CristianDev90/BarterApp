@@ -21,6 +21,10 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
   double _puntuacion = 3;
   bool _cargando = false;
 
+  static const Color _magenta = Color(0xFFCC00FF);
+  static const Color _cian = Color(0xFF00DDFF);
+  static const Color _fondo = Color(0xFF0A0E1A);
+
   @override
   void dispose() {
     _comentarioCtrl.dispose();
@@ -28,20 +32,28 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
   }
 
   Future<void> _enviarCalificacion() async {
-    if (_comentarioCtrl.text.isEmpty) {
+    if (_comentarioCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Escribe un comentario')));
+        const SnackBar(
+          content: Text('Escribe un comentario'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
     setState(() => _cargando = true);
     try {
-      // Verificar si ya calificó
-      final yaCalifique = await _reputacionService.yaCalifique(widget.paraUserId);
+      final yaCalifique =
+          await _reputacionService.yaCalifique(widget.paraUserId);
       if (yaCalifique) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ya calificaste a este usuario')));
+          const SnackBar(
+            content: Text('Ya calificaste a este usuario'),
+            backgroundColor: Colors.orange,
+          ),
+        );
         return;
       }
 
@@ -53,12 +65,17 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('¡Calificación enviada!')));
+        const SnackBar(
+          content: Text('¡Calificación enviada! ⭐'),
+          backgroundColor: Colors.green,
+        ),
+      );
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')));
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -67,46 +84,162 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Calificar a ${widget.nombreUsuario}')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: _fondo,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0F1422),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white54),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [_magenta, _cian],
+          ).createShader(bounds),
+          child: const Text(
+            'Calificar usuario',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Puntuación:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+
+            // Card usuario a calificar
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F1422),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Column(
+                children: [
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [_magenta, _cian],
+                    ).createShader(bounds),
+                    child: const Icon(Icons.person, size: 40, color: Colors.white),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    '¿Cómo fue tu experiencia con',
+                    style: TextStyle(color: Colors.white54, fontSize: 13),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.nombreUsuario,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // Estrellas
+            const Text(
+              'Puntuación',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (index) {
-                return IconButton(
-                  icon: Icon(
-                    index < _puntuacion ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                    size: 40,
+                return GestureDetector(
+                  onTap: () => setState(() => _puntuacion = index + 1),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Icon(
+                      index < _puntuacion ? Icons.star_rounded : Icons.star_outline_rounded,
+                      color: index < _puntuacion
+                          ? Colors.amber
+                          : Colors.white24,
+                      size: 48,
+                    ),
                   ),
-                  onPressed: () => setState(() => _puntuacion = index + 1),
                 );
               }),
             ),
-            const SizedBox(height: 16),
-            const Text('Comentario:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 28),
+
+            // Comentario
+            const Text(
+              'Comentario',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
             TextField(
               controller: _comentarioCtrl,
               maxLines: 4,
-              decoration: const InputDecoration(
-                hintText: '¿Cómo fue tu experiencia con este usuario?',
-                border: OutlineInputBorder(),
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: '¿Cómo fue el trueque? ¿Llegó en buen estado?',
+                hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                filled: true,
+                fillColor: Colors.white10,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _cian, width: 1.5),
+                ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
+
+            // Botón enviar
             SizedBox(
               width: double.infinity,
-              child: _cargando
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    onPressed: _enviarCalificacion,
-                    child: const Text('Enviar calificación')),
+              height: 52,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [_magenta, _cian]),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ElevatedButton(
+                  onPressed: _cargando ? null : _enviarCalificacion,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: _cargando
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Enviar calificación',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
             ),
           ],
         ),
