@@ -55,12 +55,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
     final resultado = await Navigator.push<Map<String, String>>(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, animation, __) => EditarPerfilScreen(
+        pageBuilder: (_, animation, _) => EditarPerfilScreen(
           nombreActual: _nombre,
           bioActual:    _bio,
           fotoActual:   _fotoUrl,
         ),
-        transitionsBuilder: (_, animation, __, child) =>
+        transitionsBuilder: (_, animation, _, child) =>
             FadeTransition(opacity: animation, child: child),
         transitionDuration: const Duration(milliseconds: 300),
       ),
@@ -307,11 +307,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       onTap: () => Navigator.push(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (_, animation, __) =>
+                          pageBuilder: (_, animation, _) =>
                               DetallePublicacionScreen(
                                   pub: pub, pubId: pubId),
                           transitionsBuilder:
-                              (_, animation, __, child) =>
+                              (_, animation, _, child) =>
                                   FadeTransition(
                                       opacity: animation, child: child),
                           transitionDuration:
@@ -695,7 +695,7 @@ class _SkeletonPubState extends State<_SkeletonPub>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __) {
+      builder: (_, _) {
         final color = Color.lerp(
             AppColors.superficie, AppColors.superficieAlt, _anim.value)!;
         return Container(

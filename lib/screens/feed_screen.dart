@@ -314,7 +314,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount: 4,
-                    itemBuilder: (_, __) => const _SkeletonCard(),
+                    itemBuilder: (_, _) => const _SkeletonCard(),
                   );
                 }
 
@@ -356,11 +356,11 @@ class _FeedScreenState extends State<FeedScreen> {
                         onTap: () => Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (_, animation, __) =>
+                            pageBuilder: (_, animation, _) =>
                                 DetallePublicacionScreen(
                                     pub: pub, pubId: pubId),
                             transitionsBuilder:
-                                (_, animation, __, child) =>
+                                (_, animation, _, child) =>
                                     FadeTransition(
                                         opacity: animation, child: child),
                             transitionDuration:
@@ -404,9 +404,9 @@ class _FeedScreenState extends State<FeedScreen> {
           onPressed: () => Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (_, animation, __) =>
+              pageBuilder: (_, animation, _) =>
                   const CrearPublicacionScreen(),
-              transitionsBuilder: (_, animation, __, child) =>
+              transitionsBuilder: (_, animation, _, child) =>
                   SlideTransition(
                 position: Tween<Offset>(
                   begin: const Offset(0, 1),
@@ -805,7 +805,7 @@ class _SkeletonCardState extends State<_SkeletonCard>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __) {
+      builder: (_, _) {
         final color = Color.lerp(
           AppColors.superficie,
           AppColors.superficieAlt,
