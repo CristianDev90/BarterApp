@@ -153,7 +153,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
     final estado = data['estado'] ?? 'pendiente';
     final mensaje = data['mensajePropuesta'] ?? '';
  
-    // ── BUG 5: capturar otroUid para navegación al perfil desde el chat ────
     final otroUid = esRecibido
         ? data['de_userId'] as String? ?? ''
         : data['para_userId'] as String? ?? '';
@@ -183,7 +182,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Usuario y estado
                     Row(
                       children: [
                         Container(
@@ -262,7 +260,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                     ),
                     const SizedBox(height: 12),
  
-                    // Mensaje
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
@@ -278,7 +275,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                     ),
                     const SizedBox(height: 14),
  
-                    // Aceptar / Rechazar (recibido pendiente)
                     if (esRecibido && estado == 'pendiente')
                       Row(
                         children: [
@@ -330,7 +326,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                         ],
                       ),
  
-                    // Cancelar (enviado pendiente)
                     if (!esRecibido && estado == 'pendiente')
                       SizedBox(
                         width: double.infinity,
@@ -352,7 +347,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                         ),
                       ),
  
-                    // ── BUG 5: Botón chat con otroUsuarioId para ir al perfil
                     if (estado == 'aceptado')
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -372,7 +366,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                                     propuestaId: doc.id,
                                     otroUsuarioNombre: nombre,
                                     otroUsuarioFoto: fotoUrl,
-                                    // ← nuevo parámetro para ir al perfil
                                     otroUsuarioId: otroUid,
                                   ),
                                 ),
@@ -396,7 +389,6 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                         ),
                       ),
  
-                    // Eliminar del historial (cualquier estado terminado)
                     if (estado != 'pendiente')
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -489,15 +481,54 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
             ),
           ),
         ),
-        bottom: TabBar(
-          controller: _tabCtrl,
-          indicatorColor: _cian,
-          labelColor: _cian,
-          unselectedLabelColor: Colors.white38,
-          tabs: const [
-            Tab(text: 'Recibidos'),
-            Tab(text: 'Enviados'),
-          ],
+        // ── CORRECCIÓN ERROR 2: TabBar con burbuja de notificaciones ──
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('intercambios')
+                .where('para_userId', isEqualTo: _miUid)
+                .where('estado', isEqualTo: 'pendiente')
+                .snapshots(),
+            builder: (context, snap) {
+              final count = snap.data?.docs.length ?? 0;
+              return TabBar(
+                controller: _tabCtrl,
+                indicatorColor: _cian,
+                labelColor: _cian,
+                unselectedLabelColor: Colors.white38,
+                tabs: [
+                  Tab(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Recibidos'),
+                        if (count > 0) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '$count',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const Tab(text: 'Enviados'),
+                ],
+              );
+            },
+          ),
         ),
       ),
       body: TabBarView(
@@ -510,3 +541,4 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
     );
   }
 }
+ 

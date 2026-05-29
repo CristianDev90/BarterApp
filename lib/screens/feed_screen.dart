@@ -27,7 +27,6 @@ class _FeedScreenState extends State<FeedScreen> {
   String? _categoriaSeleccionada;
   String _busqueda = '';
  
-  // ── BUG 4: lista de usuarios bloqueados ─────────────────────────────────
   List<String> _bloqueados = [];
   StreamSubscription? _bloqueoSub;
  
@@ -49,7 +48,6 @@ class _FeedScreenState extends State<FeedScreen> {
     _escucharBloqueados();
   }
  
-  // ── BUG 4: escuchar en tiempo real la lista de bloqueados ────────────────
   void _escucharBloqueados() {
     final miId = FirebaseAuth.instance.currentUser?.uid;
     if (miId == null) return;
@@ -108,7 +106,7 @@ class _FeedScreenState extends State<FeedScreen> {
           ),
         ),
         actions: [
-          // ── BUG 2: burbuja de notificaciones en intercambios ─────────────
+          // Burbuja de notificaciones en intercambios
           StreamBuilder<QuerySnapshot>(
             stream: miId == null
                 ? const Stream.empty()
@@ -159,18 +157,13 @@ class _FeedScreenState extends State<FeedScreen> {
               );
             },
           ),
+          // Solo el botón de perfil, sin logout
           IconButton(
             icon: const Icon(Icons.person_outline, color: Colors.white54),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const PerfilScreen()),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white54),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
           ),
         ],
       ),
@@ -186,12 +179,10 @@ class _FeedScreenState extends State<FeedScreen> {
               decoration: InputDecoration(
                 hintText: 'Buscar publicaciones...',
                 hintStyle: const TextStyle(color: Colors.white38),
-                prefixIcon:
-                    const Icon(Icons.search, color: Colors.white38),
+                prefixIcon: const Icon(Icons.search, color: Colors.white38),
                 suffixIcon: _busqueda.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.close,
-                            color: Colors.white38),
+                        icon: const Icon(Icons.close, color: Colors.white38),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _busqueda = '');
@@ -228,30 +219,24 @@ class _FeedScreenState extends State<FeedScreen> {
                   }),
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
                       gradient: seleccionada
-                          ? const LinearGradient(
-                              colors: [_magenta, _cian])
+                          ? const LinearGradient(colors: [_magenta, _cian])
                           : null,
-                      color: seleccionada
-                          ? null
-                          : const Color(0xFF0F1422),
+                      color: seleccionada ? null : const Color(0xFF0F1422),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: seleccionada
-                            ? Colors.transparent
-                            : Colors.white12,
+                        color:
+                            seleccionada ? Colors.transparent : Colors.white12,
                       ),
                     ),
                     child: Center(
                       child: Text(
                         cat,
                         style: TextStyle(
-                          color: seleccionada
-                              ? Colors.white
-                              : Colors.white54,
+                          color:
+                              seleccionada ? Colors.white : Colors.white54,
                           fontSize: 13,
                           fontWeight: seleccionada
                               ? FontWeight.bold
@@ -270,18 +255,15 @@ class _FeedScreenState extends State<FeedScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: _getStream(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount: 4,
                     itemBuilder: (_, __) => const _SkeletonCard(),
                   );
                 }
  
-                if (!snapshot.hasData ||
-                    snapshot.data!.docs.isEmpty) {
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return RefreshIndicator(
                     key: _refreshKey,
                     onRefresh: _refrescar,
@@ -290,34 +272,27 @@ class _FeedScreenState extends State<FeedScreen> {
                     child: ListView(
                       children: [
                         SizedBox(
-                          height:
-                              MediaQuery.of(context).size.height *
-                                  0.6,
+                          height: MediaQuery.of(context).size.height * 0.6,
                           child: Center(
                             child: Column(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
                                   width: 110,
                                   height: 110,
                                   decoration: BoxDecoration(
-                                    color:
-                                        const Color(0xFF0F1422),
-                                    borderRadius:
-                                        BorderRadius.circular(55),
-                                    border: Border.all(
-                                        color: Colors.white10),
+                                    color: const Color(0xFF0F1422),
+                                    borderRadius: BorderRadius.circular(55),
+                                    border:
+                                        Border.all(color: Colors.white10),
                                   ),
                                   child: ShaderMask(
                                     shaderCallback: (bounds) =>
                                         const LinearGradient(
                                       colors: [_magenta, _cian],
                                     ).createShader(bounds),
-                                    child: const Icon(
-                                        Icons.swap_horiz,
-                                        size: 52,
-                                        color: Colors.white),
+                                    child: const Icon(Icons.swap_horiz,
+                                        size: 52, color: Colors.white),
                                   ),
                                 ),
                                 const SizedBox(height: 24),
@@ -340,43 +315,30 @@ class _FeedScreenState extends State<FeedScreen> {
                                   'Sé el primero en publicar\nalgo para intercambiar',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                      color: Colors.white38,
-                                      fontSize: 14),
+                                      color: Colors.white38, fontSize: 14),
                                 ),
                                 const SizedBox(height: 32),
                                 Container(
                                   decoration: BoxDecoration(
-                                    gradient:
-                                        const LinearGradient(
-                                            colors: [
-                                          _magenta,
-                                          _cian
-                                        ]),
-                                    borderRadius:
-                                        BorderRadius.circular(12),
+                                    gradient: const LinearGradient(
+                                        colors: [_magenta, _cian]),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: ElevatedButton.icon(
-                                    onPressed: () =>
-                                        Navigator.push(
+                                    onPressed: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (_) =>
                                               const CrearPublicacionScreen()),
                                     ),
-                                    style:
-                                        ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Colors.transparent,
-                                      shadowColor:
-                                          Colors.transparent,
-                                      padding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 24,
-                                              vertical: 14),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 24, vertical: 14),
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(
-                                                12),
+                                            BorderRadius.circular(12),
                                       ),
                                     ),
                                     icon: const Icon(Icons.add,
@@ -385,8 +347,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                       'Crear publicación',
                                       style: TextStyle(
                                           color: Colors.white,
-                                          fontWeight:
-                                              FontWeight.bold),
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ),
@@ -399,18 +360,13 @@ class _FeedScreenState extends State<FeedScreen> {
                   );
                 }
  
-                // ── BUG 4: filtrar publicaciones de bloqueados ───────────
-                final publicaciones =
-                    snapshot.data!.docs.where((doc) {
-                  final pub =
-                      doc.data() as Map<String, dynamic>;
-                  final userId =
-                      pub['userId'] as String? ?? '';
-                  // Ocultar publicaciones de usuarios bloqueados
+                // Filtrar publicaciones de bloqueados
+                final publicaciones = snapshot.data!.docs.where((doc) {
+                  final pub = doc.data() as Map<String, dynamic>;
+                  final userId = pub['userId'] as String? ?? '';
                   if (_bloqueados.contains(userId)) return false;
                   if (_busqueda.isEmpty) return true;
-                  final titulo =
-                      (pub['titulo'] ?? '').toLowerCase();
+                  final titulo = (pub['titulo'] ?? '').toLowerCase();
                   final descripcion =
                       (pub['descripcion'] ?? '').toLowerCase();
                   return titulo.contains(_busqueda) ||
@@ -427,10 +383,8 @@ class _FeedScreenState extends State<FeedScreen> {
                           height: 90,
                           decoration: BoxDecoration(
                             color: const Color(0xFF0F1422),
-                            borderRadius:
-                                BorderRadius.circular(45),
-                            border: Border.all(
-                                color: Colors.white10),
+                            borderRadius: BorderRadius.circular(45),
+                            border: Border.all(color: Colors.white10),
                           ),
                           child: const Icon(Icons.search_off,
                               color: Colors.white24, size: 40),
@@ -453,8 +407,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           },
                           child: const Text(
                             'Limpiar búsqueda',
-                            style: TextStyle(
-                                color: Color(0xFF00DDFF)),
+                            style: TextStyle(color: Color(0xFF00DDFF)),
                           ),
                         ),
                       ],
@@ -468,8 +421,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   color: _cian,
                   backgroundColor: const Color(0xFF0F1422),
                   child: ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount: publicaciones.length,
                     itemBuilder: (context, index) {
                       final pub = publicaciones[index].data()
@@ -488,12 +440,10 @@ class _FeedScreenState extends State<FeedScreen> {
                               pubId: pubId,
                             ),
                             transitionsBuilder:
-                                (_, animation, __, child) =>
-                                    FadeTransition(
-                                        opacity: animation,
-                                        child: child),
-                            transitionDuration: const Duration(
-                                milliseconds: 300),
+                                (_, animation, __, child) => FadeTransition(
+                                    opacity: animation, child: child),
+                            transitionDuration:
+                                const Duration(milliseconds: 300),
                           ),
                         ),
                         child: Container(
@@ -501,21 +451,16 @@ class _FeedScreenState extends State<FeedScreen> {
                               horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             color: const Color(0xFF0F1422),
-                            borderRadius:
-                                BorderRadius.circular(16),
-                            border: Border.all(
-                                color: Colors.white10),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white10),
                           ),
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if (fotoUrl.isNotEmpty)
                                 ClipRRect(
-                                  borderRadius:
-                                      const BorderRadius.vertical(
-                                          top: Radius.circular(
-                                              16)),
+                                  borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(16)),
                                   child: Image.network(
                                     fotoUrl,
                                     width: double.infinity,
@@ -524,8 +469,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                   ),
                                 ),
                               Padding(
-                                padding:
-                                    const EdgeInsets.all(14),
+                                padding: const EdgeInsets.all(14),
                                 child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
@@ -535,11 +479,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                         Expanded(
                                           child: Text(
                                             pub['titulo'] ?? '',
-                                            style:
-                                                const TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.white,
-                                              fontWeight:
-                                                  FontWeight.bold,
+                                              fontWeight: FontWeight.bold,
                                               fontSize: 16,
                                             ),
                                           ),
@@ -548,19 +490,16 @@ class _FeedScreenState extends State<FeedScreen> {
                                           GestureDetector(
                                             onTap: () async {
                                               final confirmar =
-                                                  await showDialog<
-                                                      bool>(
+                                                  await showDialog<bool>(
                                                 context: context,
-                                                builder: (_) =>
-                                                    AlertDialog(
+                                                builder: (_) => AlertDialog(
                                                   backgroundColor:
-                                                      const Color(
-                                                          0xFF0F1422),
+                                                      const Color(0xFF0F1422),
                                                   title: const Text(
                                                       'Eliminar publicación',
                                                       style: TextStyle(
-                                                          color: Colors
-                                                              .white)),
+                                                          color:
+                                                              Colors.white)),
                                                   content: const Text(
                                                       '¿Estás seguro?',
                                                       style: TextStyle(
@@ -570,8 +509,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                                     TextButton(
                                                       onPressed: () =>
                                                           Navigator.pop(
-                                                              context,
-                                                              false),
+                                                              context, false),
                                                       child: const Text(
                                                           'Cancelar',
                                                           style: TextStyle(
@@ -581,20 +519,17 @@ class _FeedScreenState extends State<FeedScreen> {
                                                     TextButton(
                                                       onPressed: () =>
                                                           Navigator.pop(
-                                                              context,
-                                                              true),
+                                                              context, true),
                                                       child: const Text(
                                                           'Eliminar',
                                                           style: TextStyle(
                                                               color:
-                                                                  Colors
-                                                                      .red)),
+                                                                  Colors.red)),
                                                     ),
                                                   ],
                                                 ),
                                               );
-                                              if (confirmar ==
-                                                  true) {
+                                              if (confirmar == true) {
                                                 await _service
                                                     .eliminarPublicacion(
                                                         pubId);
@@ -614,33 +549,24 @@ class _FeedScreenState extends State<FeedScreen> {
                                           color: Colors.white60,
                                           fontSize: 14),
                                       maxLines: 2,
-                                      overflow:
-                                          TextOverflow.ellipsis,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 10),
                                     Container(
-                                      padding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
-                                        gradient:
-                                            const LinearGradient(
-                                                colors: [
-                                          _magenta,
-                                          _cian
-                                        ]),
+                                        gradient: const LinearGradient(
+                                            colors: [_magenta, _cian]),
                                         borderRadius:
-                                            BorderRadius.circular(
-                                                20),
+                                            BorderRadius.circular(20),
                                       ),
                                       child: Text(
                                         pub['categoria'] ?? '',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
-                                          fontWeight:
-                                              FontWeight.bold,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -661,8 +587,7 @@ class _FeedScreenState extends State<FeedScreen> {
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient:
-              const LinearGradient(colors: [_magenta, _cian]),
+          gradient: const LinearGradient(colors: [_magenta, _cian]),
           borderRadius: BorderRadius.circular(16),
         ),
         child: FloatingActionButton(
@@ -683,8 +608,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   child: child,
                 );
               },
-              transitionDuration:
-                  const Duration(milliseconds: 300),
+              transitionDuration: const Duration(milliseconds: 300),
             ),
           ),
           backgroundColor: Colors.transparent,
@@ -696,7 +620,6 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 }
  
-// ── Skeleton Card ────────────────────────────────────────────────────────────
 class _SkeletonCard extends StatefulWidget {
   const _SkeletonCard();
  
@@ -739,8 +662,7 @@ class _SkeletonCardState extends State<_SkeletonCard>
         )!;
  
         return Container(
-          margin:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: const Color(0xFF0F1422),
             borderRadius: BorderRadius.circular(16),
@@ -753,10 +675,7 @@ class _SkeletonCardState extends State<_SkeletonCard>
                 borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(16)),
                 child: Container(
-                  width: double.infinity,
-                  height: 200,
-                  color: color,
-                ),
+                    width: double.infinity, height: 200, color: color),
               ),
               Padding(
                 padding: const EdgeInsets.all(14),
@@ -808,3 +727,4 @@ class _SkeletonCardState extends State<_SkeletonCard>
     );
   }
 }
+ 

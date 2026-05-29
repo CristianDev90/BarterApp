@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import '../services/bloqueo_service.dart';
 import '../services/publicaciones_service.dart';
 import 'detalle_publicacion_screen.dart';
 import 'editar_perfil_screen.dart';
@@ -21,6 +22,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
  
   final _authService = AuthService();
   final _publicacionesService = PublicacionesService();
+  final _bloqueoService = BloqueoService();
   final _user = FirebaseAuth.instance.currentUser;
  
   String _nombre = 'Usuario';
@@ -79,24 +81,78 @@ class _PerfilScreenState extends State<PerfilScreen> {
     await _authService.logout();
   }
  
-  // ── BUG 3: contar trueques reales desde Firestore ────────────────────────
   Future<int> _contarTrueques() async {
     final uid = _user?.uid ?? '';
     if (uid.isEmpty) return 0;
  
     final recibidos = await FirebaseFirestore.instance
-        .collection('intercambios')
+        .collection('propuestas')
         .where('para_userId', isEqualTo: uid)
         .where('estado', isEqualTo: 'aceptado')
         .get();
  
     final enviados = await FirebaseFirestore.instance
-        .collection('intercambios')
+        .collection('propuestas')
         .where('de_userId', isEqualTo: uid)
         .where('estado', isEqualTo: 'aceptado')
         .get();
  
     return recibidos.docs.length + enviados.docs.length;
+  }
+ 
+  // ── Desbloquear desde la sección de bloqueados ───────────────────────────
+  Future<void> _desbloquearUsuario(
+      String usuarioId, String nombreUsuario) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF0F1422),
+        title: Text(
+          '¿Desbloquear a $nombreUsuario?',
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Volverás a ver sus publicaciones y podrá contactarte.',
+          style: TextStyle(color: Colors.white60),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar',
+                style: TextStyle(color: Colors.white38)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Desbloquear',
+              style: TextStyle(
+                  color: Color(0xFF00DDFF), fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+ 
+    if (confirmar != true) return;
+ 
+    try {
+      await _bloqueoService.desbloquearUsuario(usuarioId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$nombreUsuario fue desbloqueado'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
  
   @override
@@ -146,7 +202,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
           children: [
             const SizedBox(height: 20),
  
-            // Avatar y datos
+            // ── Avatar y datos ───────────────────────────────────────────
             Center(
               child: Column(
                 children: [
@@ -196,8 +252,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   const SizedBox(height: 6),
                   Text(
                     _email,
-                    style: const TextStyle(
-                        color: Colors.white54, fontSize: 14),
+                    style:
+                        const TextStyle(color: Colors.white54, fontSize: 14),
                   ),
                   if (_bio.isNotEmpty) ...[
                     const SizedBox(height: 10),
@@ -213,7 +269,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 28),
  
-            // ── BUG 3: Trueques realizados desde Firestore ───────────────────
+            // ── Trueques ─────────────────────────────────────────────────
             FutureBuilder<int>(
               future: _contarTrueques(),
               builder: (context, snap) {
@@ -227,7 +283,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 12),
  
-            // ── BUG 1: Calificación real desde Firestore ─────────────────────
+            // ── Calificación ─────────────────────────────────────────────
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('calificaciones')
@@ -256,8 +312,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     children: [
                       ShaderMask(
                         shaderCallback: (bounds) =>
-                            const LinearGradient(
-                                    colors: [_magenta, _cian])
+                            const LinearGradient(colors: [_magenta, _cian])
                                 .createShader(bounds),
                         child: const Icon(Icons.star_outline,
                             color: Colors.white, size: 28),
@@ -265,13 +320,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Calificación',
                                 style: TextStyle(
-                                    color: Colors.white60,
-                                    fontSize: 14)),
+                                    color: Colors.white60, fontSize: 14)),
                             if (total > 0) ...[
                               const SizedBox(height: 4),
                               Row(
@@ -305,7 +358,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 32),
  
-            // Título sección publicaciones
+            // ── Mis publicaciones ────────────────────────────────────────
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [_magenta, _cian],
@@ -321,7 +374,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 14),
  
-            // Lista de mis publicaciones
             StreamBuilder<QuerySnapshot>(
               stream: _publicacionesService
                   .obtenerMisPublicaciones(_user?.uid ?? ''),
@@ -348,13 +400,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       children: [
                         ShaderMask(
                           shaderCallback: (bounds) =>
-                              const LinearGradient(
-                                      colors: [_magenta, _cian])
+                              const LinearGradient(colors: [_magenta, _cian])
                                   .createShader(bounds),
-                          child: const Icon(
-                              Icons.inventory_2_outlined,
-                              size: 48,
-                              color: Colors.white),
+                          child: const Icon(Icons.inventory_2_outlined,
+                              size: 48, color: Colors.white),
                         ),
                         const SizedBox(height: 14),
                         const Text(
@@ -369,8 +418,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         const Text(
                           'Publica algo para empezar\na hacer trueques',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.white38, fontSize: 13),
+                          style:
+                              TextStyle(color: Colors.white38, fontSize: 13),
                         ),
                         const SizedBox(height: 24),
                         Container(
@@ -392,12 +441,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 12),
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            icon: const Icon(Icons.add,
-                                color: Colors.white),
+                            icon:
+                                const Icon(Icons.add, color: Colors.white),
                             label: const Text(
                               'Crear publicación',
                               style: TextStyle(
@@ -431,10 +479,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               DetallePublicacionScreen(
                                   pub: pub, pubId: pubId),
                           transitionsBuilder:
-                              (_, animation, __, child) =>
-                                  FadeTransition(
-                                      opacity: animation,
-                                      child: child),
+                              (_, animation, __, child) => FadeTransition(
+                                  opacity: animation, child: child),
                           transitionDuration:
                               const Duration(milliseconds: 300),
                         ),
@@ -449,9 +495,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         child: Row(
                           children: [
                             ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.horizontal(
-                                      left: Radius.circular(16)),
+                              borderRadius: const BorderRadius.horizontal(
+                                  left: Radius.circular(16)),
                               child: fotoUrl.isNotEmpty
                                   ? Image.network(
                                       fotoUrl,
@@ -473,10 +518,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                        horizontal: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 4),
                                 child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
@@ -489,8 +532,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                         fontSize: 15,
                                       ),
                                       maxLines: 1,
-                                      overflow:
-                                          TextOverflow.ellipsis,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
@@ -500,33 +542,25 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                         fontSize: 13,
                                       ),
                                       maxLines: 2,
-                                      overflow:
-                                          TextOverflow.ellipsis,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 8),
                                     Container(
                                       padding:
                                           const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 3),
+                                              horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
-                                        gradient:
-                                            const LinearGradient(
-                                                colors: [
-                                          _magenta,
-                                          _cian
-                                        ]),
+                                        gradient: const LinearGradient(
+                                            colors: [_magenta, _cian]),
                                         borderRadius:
-                                            BorderRadius.circular(
-                                                20),
+                                            BorderRadius.circular(20),
                                       ),
                                       child: Text(
                                         pub['categoria'] ?? '',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 11,
-                                          fontWeight:
-                                              FontWeight.bold,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -549,27 +583,21 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                         'Eliminar publicación',
                                         style: TextStyle(
                                             color: Colors.white)),
-                                    content: const Text(
-                                        '¿Estás seguro?',
+                                    content: const Text('¿Estás seguro?',
                                         style: TextStyle(
                                             color: Colors.white54)),
                                     actions: [
                                       TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(
-                                                context, false),
-                                        child: const Text(
-                                            'Cancelar',
+                                        onPressed: () => Navigator.pop(
+                                            context, false),
+                                        child: const Text('Cancelar',
                                             style: TextStyle(
-                                                color:
-                                                    Colors.white54)),
+                                                color: Colors.white54)),
                                       ),
                                       TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(
-                                                context, true),
-                                        child: const Text(
-                                            'Eliminar',
+                                        onPressed: () => Navigator.pop(
+                                            context, true),
+                                        child: const Text('Eliminar',
                                             style: TextStyle(
                                                 color: Colors.red)),
                                       ),
@@ -592,7 +620,141 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
             const SizedBox(height: 32),
  
-            // Botón cerrar sesión
+            // ── SECCIÓN USUARIOS BLOQUEADOS ──────────────────────────────
+            StreamBuilder<QuerySnapshot>(
+              stream: _bloqueoService.obtenerBloqueados(),
+              builder: (context, snap) {
+                final bloqueados = snap.data?.docs ?? [];
+                if (bloqueados.isEmpty) return const SizedBox.shrink();
+ 
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShaderMask(
+                      shaderCallback: (bounds) =>
+                          const LinearGradient(colors: [_magenta, _cian])
+                              .createShader(bounds),
+                      child: const Text(
+                        'Usuarios bloqueados',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: bloqueados.length,
+                      itemBuilder: (context, index) {
+                        final usuarioId = bloqueados[index].id;
+ 
+                        return FutureBuilder<DocumentSnapshot>(
+                          future: FirebaseFirestore.instance
+                              .collection('usuarios')
+                              .doc(usuarioId)
+                              .get(),
+                          builder: (context, snapUser) {
+                            final nombre =
+                                snapUser.data?.get('nombre') ?? '...';
+                            final fotoUrl =
+                                snapUser.data?.get('fotoUrl') ?? '';
+ 
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F1422),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.white10),
+                              ),
+                              child: Row(
+                                children: [
+                                  // Avatar
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                          colors: [_magenta, _cian]),
+                                      borderRadius:
+                                          BorderRadius.circular(22),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius:
+                                          BorderRadius.circular(22),
+                                      child: fotoUrl.isNotEmpty
+                                          ? Image.network(fotoUrl,
+                                              fit: BoxFit.cover)
+                                          : Center(
+                                              child: Text(
+                                                nombre.isNotEmpty
+                                                    ? nombre[0]
+                                                        .toUpperCase()
+                                                    : 'U',
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold,
+                                                    fontSize: 18),
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  // Nombre
+                                  Expanded(
+                                    child: Text(
+                                      nombre,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15),
+                                    ),
+                                  ),
+                                  // Botón desbloquear
+                                  TextButton.icon(
+                                    onPressed: () => _desbloquearUsuario(
+                                        usuarioId, nombre),
+                                    icon: const Icon(
+                                        Icons.lock_open_outlined,
+                                        color: Color(0xFF00DDFF),
+                                        size: 18),
+                                    label: const Text(
+                                      'Desbloquear',
+                                      style: TextStyle(
+                                          color: Color(0xFF00DDFF),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 6),
+                                      backgroundColor: const Color(0xFF00DDFF)
+                                          .withValues(alpha: 0.08),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                );
+              },
+            ),
+ 
+            // ── Cerrar sesión ────────────────────────────────────────────
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -645,8 +807,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
           Expanded(
             child: Text(
               titulo,
-              style: const TextStyle(
-                  color: Colors.white60, fontSize: 14),
+              style:
+                  const TextStyle(color: Colors.white60, fontSize: 14),
             ),
           ),
           Text(
@@ -663,13 +825,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
   }
 }
  
-// ── Skeleton para publicaciones del perfil ───────────────────────────────────
 class _SkeletonPublicacion extends StatefulWidget {
   const _SkeletonPublicacion();
  
   @override
-  State<_SkeletonPublicacion> createState() =>
-      _SkeletonPublicacionState();
+  State<_SkeletonPublicacion> createState() => _SkeletonPublicacionState();
 }
  
 class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
@@ -718,8 +878,7 @@ class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
               ClipRRect(
                 borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(16)),
-                child:
-                    Container(width: 90, height: 90, color: color),
+                child: Container(width: 90, height: 90, color: color),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -767,4 +926,3 @@ class _SkeletonPublicacionState extends State<_SkeletonPublicacion>
     );
   }
 }
- 
