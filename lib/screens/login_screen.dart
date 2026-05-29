@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../main.dart';
 import '../services/auth_service.dart';
 import 'registro_screen.dart';
 
@@ -12,15 +13,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
+  final _emailController    = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _loading = false;
+  bool _loading     = false;
   bool _verPassword = false;
-  bool _canLogin = false;
-
-  static const Color _magenta = Color(0xFFCC00FF);
-  static const Color _cian = Color(0xFF00DDFF);
-  static const Color _fondo = Color(0xFF0A0E1A);
+  bool _canLogin    = false;
 
   @override
   void initState() {
@@ -52,12 +49,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.authService.traducirError(e)),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(widget.authService.traducirError(e)),
+        backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -69,38 +66,23 @@ class _LoginScreenState extends State<LoginScreen> {
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF0F1422),
-        title: const Text(
-          'Restablecer contraseña',
-          style: TextStyle(color: Colors.white),
-        ),
+        backgroundColor: AppColors.superficie,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Restablecer contraseña',
+            style: TextStyle(color: AppColors.textoP)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               'Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.',
-              style: TextStyle(color: Colors.white54, fontSize: 13),
+              style: TextStyle(color: AppColors.textoH, fontSize: 13),
             ),
             const SizedBox(height: 16),
-            TextField(
+            _buildTextField(
               controller: emailCtrl,
+              label: 'Correo electrónico',
+              icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Correo electrónico',
-                labelStyle: const TextStyle(color: Colors.white54),
-                prefixIcon: const Icon(Icons.email_outlined, color: Colors.white38),
-                filled: true,
-                fillColor: Colors.white10,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: _cian, width: 1.5),
-                ),
-              ),
             ),
           ],
         ),
@@ -108,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancelar',
-                style: TextStyle(color: Colors.white54)),
+                style: TextStyle(color: AppColors.textoH)),
           ),
           TextButton(
             onPressed: () async {
@@ -118,34 +100,24 @@ class _LoginScreenState extends State<LoginScreen> {
               try {
                 await widget.authService.restablecerContrasena(email);
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Correo de restablecimiento enviado. Revisa tu bandeja.'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Correo enviado. Revisa tu bandeja.'),
+                  backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                ));
               } on FirebaseAuthException catch (e) {
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(widget.authService.traducirError(e)),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(widget.authService.traducirError(e)),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                ));
               }
             },
-            child: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [_magenta, _cian],
-              ).createShader(bounds),
-              child: const Text(
-                'Enviar',
+            child: const Text('Enviar',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+                    color: AppColors.acentoClaro,
+                    fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -155,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _fondo,
+      backgroundColor: AppColors.fondo,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -163,26 +135,47 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 60),
 
-              Image.asset('assets/images/logo.png', height: 120),
-              const SizedBox(height: 12),
+              // Logo
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  color: AppColors.superficie,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppColors.borde, width: 1.5),
+                ),
+                child: const Center(
+                  child: Text('🌿', style: TextStyle(fontSize: 46)),
+                ),
+              ),
+              const SizedBox(height: 20),
 
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [_magenta, _cian],
-                ).createShader(bounds),
-                child: const Text(
-                  'BarterApp',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Barter',
+                      style: TextStyle(
+                        color: AppColors.textoP,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'App',
+                      style: TextStyle(
+                        color: AppColors.acentoClaro,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 6),
               const Text(
                 'Intercambia lo que no usas',
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: AppColors.textoH, fontSize: 14),
               ),
               const SizedBox(height: 48),
 
@@ -192,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               _buildTextField(
                 controller: _passwordController,
@@ -202,57 +195,59 @@ class _LoginScreenState extends State<LoginScreen> {
                 suffixIcon: IconButton(
                   icon: Icon(
                     _verPassword ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.white38,
+                    color: AppColors.textoH,
                   ),
-                  onPressed: () => setState(() => _verPassword = !_verPassword),
+                  onPressed: () =>
+                      setState(() => _verPassword = !_verPassword),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
 
-              // Olvidaste tu contraseña
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: _mostrarDialogoRestablecer,
                   child: const Text(
                     '¿Olvidaste tu contraseña?',
-                    style: TextStyle(color: Colors.white38, fontSize: 13),
+                    style: TextStyle(color: AppColors.textoH, fontSize: 13),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
+              // Botón iniciar sesión
               SizedBox(
                 width: double.infinity,
                 height: 52,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: _canLogin
-                        ? const LinearGradient(colors: [_magenta, _cian])
-                        : null,
-                    color: _canLogin ? null : Colors.white12,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: _canLogin && !_loading ? _login : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                child: ElevatedButton(
+                  onPressed: _canLogin && !_loading ? _login : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _canLogin
+                        ? AppColors.acento
+                        : AppColors.superficie,
+                    foregroundColor: AppColors.fondo,
+                    disabledBackgroundColor: AppColors.superficie,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    child: _loading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            'Iniciar sesión',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
+                    elevation: 0,
                   ),
+                  child: _loading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: AppColors.fondo,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          'Iniciar sesión',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -261,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text('¿No tienes cuenta?',
-                      style: TextStyle(color: Colors.white54)),
+                      style: TextStyle(color: AppColors.textoH)),
                   TextButton(
                     onPressed: () => Navigator.push(
                       context,
@@ -270,16 +265,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             RegistroScreen(authService: widget.authService),
                       ),
                     ),
-                    child: ShaderMask(
-                      shaderCallback: (bounds) => const LinearGradient(
-                        colors: [_magenta, _cian],
-                      ).createShader(bounds),
-                      child: const Text(
-                        'Regístrate',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                    child: const Text(
+                      'Regístrate',
+                      style: TextStyle(
+                        color: AppColors.acentoClaro,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -304,21 +294,26 @@ class _LoginScreenState extends State<LoginScreen> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: AppColors.textoP),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white54),
-        prefixIcon: Icon(icon, color: Colors.white38),
+        labelStyle: const TextStyle(color: AppColors.textoH),
+        prefixIcon: Icon(icon, color: AppColors.textoS, size: 20),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: Colors.white10,
+        fillColor: AppColors.superficie,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.borde),
+        ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _cian, width: 1.5),
+          borderRadius: BorderRadius.circular(14),
+          borderSide:
+              const BorderSide(color: AppColors.acento, width: 1.5),
         ),
       ),
     );
