@@ -7,6 +7,7 @@ import 'crear_publicacion_screen.dart';
 import 'perfil_screen.dart';
 import 'detalle_publicacion_screen.dart';
 import 'intercambios_screen.dart';
+import '../main.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -463,76 +464,277 @@ class _FeedScreenState extends State<FeedScreen> {
                 onTap: () {
                   showModalBottomSheet(
                     context: context,
-                    backgroundColor: const Color(0xFFEBE6D6),
+                    backgroundColor: AppColors.superficie,
+                    isScrollControlled: true,
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                     ),
-                    builder: (_) => StreamBuilder<QuerySnapshot>(
-                      stream: miId == null
-                          ? const Stream.empty()
-                          : FirebaseFirestore.instance
-                              .collection('intercambios')
-                              .where('para_userId', isEqualTo: miId)
-                              .where('estado', isEqualTo: 'pendiente')
-                              .orderBy('fecha', descending: true)
-                              .snapshots(),
-                      builder: (context, snap) {
-                        final docs = snap.data?.docs ?? [];
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 12),
-                            Container(
-                              width: 40, height: 4,
-                              decoration: BoxDecoration(
-                                color: Color(0xFF2D5A27).withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Alertas',
-                              style: TextStyle(
-                                color: Color(0xFF2D5A27),
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            if (docs.isEmpty)
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 32),
-                                child: Text(
-                                  'No tienes alertas pendientes',
-                                  style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
-                                ),
-                              )
-                            else
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: docs.length,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                itemBuilder: (_, i) {
-                                  final d = docs[i].data() as Map<String, dynamic>;
-                                  return ListTile(
-                                    leading: Icon(
-                                      Icons.swap_horiz_rounded,
-                                      color: Color(0xFF2D5A27),
+                    builder: (_) => StatefulBuilder(
+                      builder: (context, setModalState) {
+                        String _filtro = 'Todas';
+                        return StatefulBuilder(
+                          builder: (context, setModalState) {
+                            return DraggableScrollableSheet(
+                              initialChildSize: 0.75,
+                              minChildSize: 0.5,
+                              maxChildSize: 0.95,
+                              expand: false,
+                              builder: (_, scrollController) {
+                                return Column(
+                                  children: [
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      width: 40, height: 4,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.borde,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
                                     ),
-                                    title: Text(
-                                      d['titulo'] ?? 'Intercambio pendiente',
-                                      style: TextStyle(color: Color(0xFF2D5A27)),
+                                    const SizedBox(height: 16),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 44, height: 44,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.acento.withValues(alpha: 0.15),
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: const Icon(Icons.notifications_rounded,
+                                                color: AppColors.acento, size: 22),
+                                          ),
+                                          const SizedBox(width: 14),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: const [
+                                              Text('Alertas',
+                                                  style: TextStyle(
+                                                      color: AppColors.textoP,
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold)),
+                                              Text('Mantente al día con lo importante',
+                                                  style: TextStyle(
+                                                      color: AppColors.textoH, fontSize: 12)),
+                                            ],
+                                          ),
+                                          const Spacer(),
+                                          GestureDetector(
+                                            onTap: () => Navigator.pop(context),
+                                            child: Container(
+                                              width: 32, height: 32,
+                                              decoration: BoxDecoration(
+                                                color: AppColors.superficieAlt,
+                                                borderRadius: BorderRadius.circular(16),
+                                              ),
+                                              child: const Icon(Icons.close,
+                                                  color: AppColors.textoS, size: 18),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    subtitle: Text(
-                                      'Tienes una propuesta pendiente',
-                                      style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 12),
+                                    const SizedBox(height: 16),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                                      child: Row(
+                                        children: ['Todas', 'Mensajes', 'Sistema'].map((f) {
+                                          final activo = _filtro == f;
+                                          return GestureDetector(
+                                            onTap: () => setModalState(() => _filtro = f),
+                                            child: AnimatedContainer(
+                                              duration: const Duration(milliseconds: 200),
+                                              margin: const EdgeInsets.only(right: 8),
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 8),
+                                              decoration: BoxDecoration(
+                                                color: activo
+                                                    ? AppColors.acento
+                                                    : AppColors.superficieAlt,
+                                                borderRadius: BorderRadius.circular(50),
+                                                border: Border.all(
+                                                  color: activo
+                                                      ? AppColors.acento
+                                                      : AppColors.bordeAlt,
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    f == 'Todas'
+                                                        ? Icons.notifications_outlined
+                                                        : f == 'Mensajes'
+                                                            ? Icons.chat_bubble_outline_rounded
+                                                            : Icons.settings_outlined,
+                                                    size: 14,
+                                                    color: activo
+                                                        ? AppColors.fondo
+                                                        : AppColors.textoS,
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(f,
+                                                      style: TextStyle(
+                                                        color: activo
+                                                            ? AppColors.fondo
+                                                            : AppColors.textoS,
+                                                        fontSize: 13,
+                                                        fontWeight: activo
+                                                            ? FontWeight.bold
+                                                            : FontWeight.normal,
+                                                      )),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
                                     ),
-                                  );
-                                },
-                              ),
-                            const SizedBox(height: 16),
-                          ],
+                                    const SizedBox(height: 16),
+                                    Expanded(
+                                      child: StreamBuilder<QuerySnapshot>(
+                                        stream: miId == null
+                                            ? const Stream.empty()
+                                            : FirebaseFirestore.instance
+                                                .collection('intercambios')
+                                                .where('para_userId', isEqualTo: miId)
+                                                .where('estado', isEqualTo: 'pendiente')
+                                                .orderBy('fecha', descending: true)
+                                                .snapshots(),
+                                        builder: (context, snap) {
+                                          final docs = snap.data?.docs ?? [];
+                                          if (docs.isEmpty) {
+                                            return Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                  width: 80, height: 80,
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.acento.withValues(alpha: 0.12),
+                                                    borderRadius: BorderRadius.circular(40),
+                                                  ),
+                                                  child: const Icon(
+                                                      Icons.notifications_outlined,
+                                                      color: AppColors.acento, size: 38),
+                                                ),
+                                                const SizedBox(height: 20),
+                                                const Text('¡Todo al día!',
+                                                    style: TextStyle(
+                                                        color: AppColors.textoP,
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold)),
+                                                const SizedBox(height: 8),
+                                                const Text('No tienes alertas pendientes',
+                                                    style: TextStyle(
+                                                        color: AppColors.textoH,
+                                                        fontSize: 13)),
+                                                const SizedBox(height: 4),
+                                                const Text(
+                                                    'Te notificaremos cuando haya novedades',
+                                                    style: TextStyle(
+                                                        color: AppColors.acentoClaro,
+                                                        fontSize: 12)),
+                                              ],
+                                            );
+                                          }
+                                          return ListView.builder(
+                                            controller: scrollController,
+                                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                                            itemCount: docs.length,
+                                            itemBuilder: (_, i) {
+                                              final d = docs[i].data() as Map<String, dynamic>;
+                                              return Container(
+                                                margin: const EdgeInsets.only(bottom: 10),
+                                                padding: const EdgeInsets.all(14),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.superficieAlt,
+                                                  borderRadius: BorderRadius.circular(14),
+                                                  border: Border.all(color: AppColors.borde),
+                                                ),
+                                                child: Row(children: [
+                                                  Container(
+                                                    width: 40, height: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.acento.withValues(alpha: 0.15),
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
+                                                    child: const Icon(
+                                                        Icons.swap_horiz_rounded,
+                                                        color: AppColors.acento, size: 20),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          d['titulo'] ?? 'Intercambio pendiente',
+                                                          style: const TextStyle(
+                                                              color: AppColors.textoP,
+                                                              fontWeight: FontWeight.w600,
+                                                              fontSize: 14),
+                                                        ),
+                                                        const SizedBox(height: 2),
+                                                        const Text('Tienes una propuesta pendiente',
+                                                            style: TextStyle(
+                                                                color: AppColors.textoH,
+                                                                fontSize: 12)),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ]),
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 14),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.superficieAlt,
+                                          borderRadius: BorderRadius.circular(14),
+                                          border: Border.all(color: AppColors.bordeAlt),
+                                        ),
+                                        child: Row(children: [
+                                          Container(
+                                            width: 36, height: 36,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.acento.withValues(alpha: 0.15),
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: const Icon(Icons.settings_outlined,
+                                                color: AppColors.acento, size: 18),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          const Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text('Configurar alertas',
+                                                    style: TextStyle(
+                                                        color: AppColors.textoP,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 14)),
+                                                Text('Elige qué notificaciones quieres recibir',
+                                                    style: TextStyle(
+                                                        color: AppColors.textoH, fontSize: 12)),
+                                              ],
+                                            ),
+                                          ),
+                                          const Icon(Icons.chevron_right_rounded,
+                                              color: AppColors.acentoClaro),
+                                        ]),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                         );
                       },
                     ),
