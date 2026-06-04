@@ -7,7 +7,6 @@ import 'screens/registro_screen.dart';
 import 'screens/splash_screen.dart';
 import 'services/auth_service.dart';
 import 'services/notificaciones_service.dart';
-import '../main.dart';
  
 // ── Paleta global BarterApp Verde Claro ───────────────────────────────────
 class AppColors {
