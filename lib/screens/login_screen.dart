@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import 'registro_screen.dart';
+import 'feed_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
@@ -46,6 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
+      // ── CAMBIO: después del login exitoso, navegar al Feed y limpiar la pila ──
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const FeedScreen()),
+        (route) => false,
+      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -67,14 +74,14 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFFEBE6D6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Restablecer contraseña',
+        title: const Text('Restablecer contraseña',
             style: TextStyle(color: Color(0xFF2D5A27))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.',
-              style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
+              style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
             ),
             const SizedBox(height: 16),
             _buildTextField(
@@ -89,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Cancelar',
-                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
+                style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35))),
           ),
           TextButton(
             onPressed: () async {
@@ -113,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ));
               }
             },
-            child: Text('Enviar',
+            child: const Text('Enviar',
                 style: TextStyle(
                     color: Color(0xFF2D5A27),
                     fontWeight: FontWeight.bold)),
@@ -141,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFEBE6D6),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08), width: 1.5),
+                  border: Border.all(color: const Color(0xFF2D5A27).withValues(alpha: 0.08), width: 1.5),
                 ),
                 child: const Center(
                   child: Text('🌿', style: TextStyle(fontSize: 46)),
@@ -174,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 6),
               Text(
                 'Intercambia lo que no usas',
-                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
+                style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
               ),
               const SizedBox(height: 48),
 
@@ -194,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 suffixIcon: IconButton(
                   icon: Icon(
                     _verPassword ? Icons.visibility_off : Icons.visibility,
-                    color: Color(0xFF2D5A27).withValues(alpha: 0.35),
+                    color: const Color(0xFF2D5A27).withValues(alpha: 0.35),
                   ),
                   onPressed: () =>
                       setState(() => _verPassword = !_verPassword),
@@ -208,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _mostrarDialogoRestablecer,
                   child: Text(
                     '¿Olvidaste tu contraseña?',
-                    style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
+                    style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
                   ),
                 ),
               ),
@@ -240,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             strokeWidth: 2.5,
                           ),
                         )
-                      : Text(
+                      : const Text(
                           'Iniciar sesión',
                           style: TextStyle(
                             fontSize: 16,
@@ -255,7 +262,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('¿No tienes cuenta?',
-                      style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
+                      style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35))),
                   TextButton(
                     onPressed: () => Navigator.push(
                       context,
@@ -264,7 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             RegistroScreen(authService: widget.authService),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Regístrate',
                       style: TextStyle(
                         color: Color(0xFF2D5A27),
@@ -293,11 +300,11 @@ class _LoginScreenState extends State<LoginScreen> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: TextStyle(color: Color(0xFF2D5A27)),
+      style: const TextStyle(color: Color(0xFF2D5A27)),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
-        prefixIcon: Icon(icon, color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
+        labelStyle: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35)),
+        prefixIcon: Icon(icon, color: const Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: const Color(0xFFEBE6D6),
@@ -307,12 +314,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
+          borderSide: BorderSide(color: const Color(0xFF2D5A27).withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide:
-              BorderSide(color: Color(0xFF2D5A27), width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFF2D5A27), width: 1.5),
         ),
       ),
     );
