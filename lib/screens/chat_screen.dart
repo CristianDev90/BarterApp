@@ -3,14 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/intercambio_service.dart';
 import 'perfil_usuario_screen.dart';
- 
+
 class ChatScreen extends StatefulWidget {
   final String propuestaId;
   final String otroUsuarioNombre;
   final String otroUsuarioFoto;
-  // Bug 5: nuevo parámetro para navegar al perfil desde el chat
   final String otroUsuarioId;
- 
+
   const ChatScreen({
     super.key,
     required this.propuestaId,
@@ -18,28 +17,28 @@ class ChatScreen extends StatefulWidget {
     required this.otroUsuarioFoto,
     required this.otroUsuarioId,
   });
- 
+
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
- 
+
 class _ChatScreenState extends State<ChatScreen> {
   final _service = IntercambioService();
   final _mensajeCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
   final _miUid = FirebaseAuth.instance.currentUser?.uid ?? '';
- 
+
   static const Color _magenta = Color(0xFFCC00FF);
   static const Color _cian = Color(0xFF00DDFF);
   static const Color _fondo = Color(0xFF0A0E1A);
- 
+
   @override
   void dispose() {
     _mensajeCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
- 
+
   void _scrollAbajo() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollCtrl.hasClients) {
@@ -51,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     });
   }
- 
+
   Future<void> _enviar() async {
     final texto = _mensajeCtrl.text.trim();
     if (texto.isEmpty) return;
@@ -59,11 +58,11 @@ class _ChatScreenState extends State<ChatScreen> {
     await _service.enviarMensaje(
       propuestaId: widget.propuestaId,
       texto: texto,
+      paraUserId: widget.otroUsuarioId,
     );
     _scrollAbajo();
   }
- 
-  // Bug 5: navegar al perfil del otro usuario
+
   void _irAlPerfil() {
     Navigator.push(
       context,
@@ -72,7 +71,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
- 
+
   Widget _buildMensaje(Map<String, dynamic> data) {
     final esMio = data['de_userId'] == _miUid;
     final texto = data['texto'] ?? '';
@@ -80,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final hora = fecha != null
         ? '${fecha.toDate().hour.toString().padLeft(2, '0')}:${fecha.toDate().minute.toString().padLeft(2, '0')}'
         : '';
- 
+
     return Align(
       alignment: esMio ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -100,7 +99,10 @@ class _ChatScreenState extends State<ChatScreen> {
             bottomLeft: Radius.circular(esMio ? 16 : 4),
             bottomRight: Radius.circular(esMio ? 4 : 16),
           ),
-          border: esMio ? null : Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
+          border: esMio
+              ? null
+              : Border.all(
+                  color: const Color(0xFF2D5A27).withValues(alpha: 0.08)),
         ),
         child: Column(
           crossAxisAlignment:
@@ -108,19 +110,22 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(
               texto,
-              style: TextStyle(color: Color(0xFF2D5A27), fontSize: 14),
+              style: const TextStyle(
+                  color: Color(0xFF2D5A27), fontSize: 14),
             ),
             const SizedBox(height: 4),
             Text(
               hora,
-              style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.5), fontSize: 10),
+              style: TextStyle(
+                  color: const Color(0xFF2D5A27).withValues(alpha: 0.5),
+                  fontSize: 10),
             ),
           ],
         ),
       ),
     );
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,10 +134,10 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
+          icon: Icon(Icons.arrow_back_ios,
+              color: const Color(0xFF2D5A27).withValues(alpha: 0.5)),
           onPressed: () => Navigator.pop(context),
         ),
-        // Bug 5: todo el título es tappable para ir al perfil
         title: GestureDetector(
           onTap: _irAlPerfil,
           child: Row(
@@ -141,19 +146,21 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [_magenta, _cian]),
+                  gradient:
+                      const LinearGradient(colors: [_magenta, _cian]),
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(18),
                   child: widget.otroUsuarioFoto.isNotEmpty
-                      ? Image.network(widget.otroUsuarioFoto, fit: BoxFit.cover)
+                      ? Image.network(widget.otroUsuarioFoto,
+                          fit: BoxFit.cover)
                       : Center(
                           child: Text(
                             widget.otroUsuarioNombre.isNotEmpty
                                 ? widget.otroUsuarioNombre[0].toUpperCase()
                                 : 'U',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Color(0xFF2D5A27),
                               fontWeight: FontWeight.bold,
                             ),
@@ -173,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               .createShader(bounds),
                       child: Text(
                         widget.otroUsuarioNombre,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF2D5A27),
                           fontWeight: FontWeight.bold,
                           fontSize: 17,
@@ -184,7 +191,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     Text(
                       'Ver perfil',
                       style: TextStyle(
-                        color: Color(0xFF2D5A27).withValues(alpha: 0.35),
+                        color:
+                            const Color(0xFF2D5A27).withValues(alpha: 0.35),
                         fontSize: 11,
                       ),
                     ),
@@ -203,56 +211,66 @@ class _ChatScreenState extends State<ChatScreen> {
               builder: (context, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF00DDFF)),
+                    child: CircularProgressIndicator(
+                        color: Color(0xFF00DDFF)),
                   );
                 }
- 
+
                 final mensajes = snap.data?.docs ?? [];
- 
+
                 if (mensajes.isEmpty) {
                   return Center(
                     child: Text(
                       'Aún no hay mensajes.\n¡Saluda al otro usuario! 👋',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
+                      style: TextStyle(
+                          color: const Color(0xFF2D5A27)
+                              .withValues(alpha: 0.35),
+                          fontSize: 14),
                     ),
                   );
                 }
- 
+
                 WidgetsBinding.instance
                     .addPostFrameCallback((_) => _scrollAbajo());
- 
+
                 return ListView.builder(
                   controller: _scrollCtrl,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   itemCount: mensajes.length,
                   itemBuilder: (_, i) {
-                    final data = mensajes[i].data() as Map<String, dynamic>;
+                    final data =
+                        mensajes[i].data() as Map<String, dynamic>;
                     return _buildMensaje(data);
                   },
                 );
               },
             ),
           ),
- 
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: Color(0xFFEBE6D6),
-              border: Border(top: BorderSide(color: Color(0xFF2D5A27).withValues(alpha: 0.08))),
+              color: const Color(0xFFEBE6D6),
+              border: Border(
+                  top: BorderSide(
+                      color: const Color(0xFF2D5A27).withValues(alpha: 0.08))),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _mensajeCtrl,
-                    style: TextStyle(color: Color(0xFF2D5A27)),
+                    style: const TextStyle(color: Color(0xFF2D5A27)),
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       hintText: 'Escribe un mensaje...',
-                      hintStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.2)),
+                      hintStyle: TextStyle(
+                          color: const Color(0xFF2D5A27)
+                              .withValues(alpha: 0.2)),
                       filled: true,
-                      fillColor: Color(0xFF2D5A27).withValues(alpha: 0.08),
+                      fillColor:
+                          const Color(0xFF2D5A27).withValues(alpha: 0.08),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 10),
                       border: OutlineInputBorder(
@@ -270,11 +288,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      gradient:
-                          const LinearGradient(colors: [_magenta, _cian]),
+                      gradient: const LinearGradient(
+                          colors: [_magenta, _cian]),
                       borderRadius: BorderRadius.circular(22),
                     ),
-                    child: Icon(Icons.send_rounded,
+                    child: const Icon(Icons.send_rounded,
                         color: Color(0xFF2D5A27), size: 20),
                   ),
                 ),

@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'notificaciones_service.dart';
 
 class IntercambioService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final NotificacionesService _notifs = NotificacionesService();
 
   // ─── PROPONER UN INTERCAMBIO ───────────────────────────────────────────────
   Future<void> proponerIntercambio({
@@ -28,7 +30,7 @@ class IntercambioService {
       throw Exception('Ya tienes una propuesta pendiente para este objeto');
     }
 
-    await _db.collection('propuestas').add({
+    final ref = await _db.collection('propuestas').add({
       'publicacionId': publicacionId,
       'para_userId': propietarioId,
       'de_userId': user.uid,
@@ -37,6 +39,18 @@ class IntercambioService {
       'fecha': FieldValue.serverTimestamp(),
       'ocultoPara': [],
     });
+
+    // Obtener nombre del que propone
+    final userDoc = await _db.collection('usuarios').doc(user.uid).get();
+    final nombre = userDoc.data()?['nombre'] ?? 'Alguien';
+
+    await _notifs.guardarNotificacion(
+      paraUserId: propietarioId,
+      tipo: 'intercambio',
+      titulo: 'Nueva propuesta de intercambio',
+      cuerpo: '$nombre quiere intercambiar contigo',
+      refId: ref.id,
+    );
   }
 
   // ─── ACEPTAR UNA PROPUESTA ─────────────────────────────────────────────────
@@ -53,6 +67,17 @@ class IntercambioService {
       'estado': 'aceptado',
       'fechaRespuesta': FieldValue.serverTimestamp(),
     });
+
+    final userDoc = await _db.collection('usuarios').doc(user.uid).get();
+    final nombre = userDoc.data()?['nombre'] ?? 'Alguien';
+
+    await _notifs.guardarNotificacion(
+      paraUserId: doc['de_userId'],
+      tipo: 'intercambio',
+      titulo: '¡Propuesta aceptada!',
+      cuerpo: '$nombre aceptó tu propuesta de intercambio',
+      refId: propuestaId,
+    );
   }
 
   // ─── RECHAZAR UNA PROPUESTA ────────────────────────────────────────────────
@@ -69,6 +94,17 @@ class IntercambioService {
       'estado': 'rechazado',
       'fechaRespuesta': FieldValue.serverTimestamp(),
     });
+
+    final userDoc = await _db.collection('usuarios').doc(user.uid).get();
+    final nombre = userDoc.data()?['nombre'] ?? 'Alguien';
+
+    await _notifs.guardarNotificacion(
+      paraUserId: doc['de_userId'],
+      tipo: 'intercambio',
+      titulo: 'Propuesta rechazada',
+      cuerpo: '$nombre rechazó tu propuesta de intercambio',
+      refId: propuestaId,
+    );
   }
 
   // ─── CANCELAR UNA PROPUESTA ────────────────────────────────────────────────
@@ -127,32 +163,45 @@ class IntercambioService {
         .orderBy('fecha', descending: true)
         .snapshots();
   }
+
   // ─── ENVIAR MENSAJE ────────────────────────────────────────────────────────
-Future<void> enviarMensaje({
-  required String propuestaId,
-  required String texto,
-}) async {
-  final user = _auth.currentUser;
-  if (user == null) throw Exception('Usuario no autenticado');
+  Future<void> enviarMensaje({
+    required String propuestaId,
+    required String texto,
+    required String paraUserId,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
 
-  await _db
-      .collection('propuestas')
-      .doc(propuestaId)
-      .collection('mensajes')
-      .add({
-    'de_userId': user.uid,
-    'texto': texto,
-    'fecha': FieldValue.serverTimestamp(),
-  });
-}
+    await _db
+        .collection('propuestas')
+        .doc(propuestaId)
+        .collection('mensajes')
+        .add({
+      'de_userId': user.uid,
+      'texto': texto,
+      'fecha': FieldValue.serverTimestamp(),
+    });
 
-// ─── STREAM DE MENSAJES ────────────────────────────────────────────────────
-Stream<QuerySnapshot> mensajesDeChat(String propuestaId) {
-  return _db
-      .collection('propuestas')
-      .doc(propuestaId)
-      .collection('mensajes')
-      .orderBy('fecha', descending: false)
-      .snapshots();
-}
+    final userDoc = await _db.collection('usuarios').doc(user.uid).get();
+    final nombre = userDoc.data()?['nombre'] ?? 'Alguien';
+
+    await _notifs.guardarNotificacion(
+      paraUserId: paraUserId,
+      tipo: 'mensaje',
+      titulo: 'Nuevo mensaje de $nombre',
+      cuerpo: texto.length > 50 ? '${texto.substring(0, 50)}...' : texto,
+      refId: propuestaId,
+    );
+  }
+
+  // ─── STREAM DE MENSAJES ────────────────────────────────────────────────────
+  Stream<QuerySnapshot> mensajesDeChat(String propuestaId) {
+    return _db
+        .collection('propuestas')
+        .doc(propuestaId)
+        .collection('mensajes')
+        .orderBy('fecha', descending: false)
+        .snapshots();
+  }
 }
