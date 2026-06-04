@@ -433,92 +433,28 @@ class _FeedScreenState extends State<FeedScreen> {
         backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         titleSpacing: 16,
-title: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Barter',
-                    style: TextStyle(
-                      color: _verde,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  TextSpan(
-                    text: 'App',
-                    style: TextStyle(
-                      color: _verde,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
+        title: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'Barter',
+                style: TextStyle(
+                  color: _verde,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-          
-        
-        actions: [
-          // Intercambios con burbuja
-          StreamBuilder<QuerySnapshot>(
-            stream: miId == null
-                ? const Stream.empty()
-                : FirebaseFirestore.instance
-                    .collection('propuestas')
-                    .where('para_userId', isEqualTo: miId)
-                    .where('estado', isEqualTo: 'pendiente')
-                    .snapshots(),
-            builder: (context, snap) {
-              final pendientes = snap.data?.docs.length ?? 0;
-              return Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.swap_horiz_rounded,
-                        color: _verde.withValues(alpha: 0.5)),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const IntercambiosScreen()),
-                    ),
-                  ),
-                  if (pendientes > 0)
-                    Positioned(
-                      right: 6,
-                      top: 6,
-                      child: Container(
-                        width: 17,
-                        height: 17,
-                        decoration: BoxDecoration(
-                          color: _verde,
-                          borderRadius: BorderRadius.circular(9),
-                          border: Border.all(color: _fondo, width: 1.5),
-                        ),
-                        child: Center(
-                          child: Text(
-                            pendientes > 9 ? '9+' : '$pendientes',
-                            style: TextStyle(
-                              color: _fondo,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
+              TextSpan(
+                text: 'App',
+                style: TextStyle(
+                  color: _verde,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
-          IconButton(
-            icon: Icon(Icons.person_outline_rounded,
-                color: _verde.withValues(alpha: 0.5)),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const PerfilScreen()),
-            ),
-          ),
-          const SizedBox(width: 4),
-        ],
+        ),
       ),
 
       // ── Body ────────────────────────────────────────────────────────────
@@ -544,7 +480,7 @@ title: RichText(
                           setState(() => _busqueda = '');
                         },
                       )
-: null,
+                    : null,
                 filled: true,
                 fillColor: _fondo,
                 border: OutlineInputBorder(
