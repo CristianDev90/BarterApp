@@ -433,21 +433,7 @@ class _FeedScreenState extends State<FeedScreen> {
         backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         titleSpacing: 16,
-        title: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: _verde,
-                borderRadius: BorderRadius.circular(9),
-              ),
-              child: const Center(
-                child: Text('🌿', style: TextStyle(fontSize: 17)),
-              ),
-            ),
-            const SizedBox(width: 10),
-            RichText(
+title: RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
@@ -469,8 +455,8 @@ class _FeedScreenState extends State<FeedScreen> {
                 ],
               ),
             ),
-          ],
-        ),
+          
+        
         actions: [
           // Intercambios con burbuja
           StreamBuilder<QuerySnapshot>(

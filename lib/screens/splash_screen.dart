@@ -47,19 +47,11 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo verde con hoja
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEBE6D6),
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08), width: 1.5),
-                  ),
-                  child: const Center(
-                    child: Text('🌿', style: TextStyle(fontSize: 52)),
-                  ),
-                ),
+Image.asset(
+  'assets/images/logo_foreground.png',
+  width: 100,
+  height: 100,
+),
                 const SizedBox(height: 24),
                 RichText(
                   text: const TextSpan(
