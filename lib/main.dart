@@ -59,6 +59,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       routes: {
+        '/login':    (context) => LoginScreen(authService: authService),
         '/registro': (context) => RegistroScreen(authService: authService),
       },
       home: const AppRoot(),
@@ -129,4 +130,3 @@ class _AppRootState extends State<AppRoot> {
     );
   }
 }
- 

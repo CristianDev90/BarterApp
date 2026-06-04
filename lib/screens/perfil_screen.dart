@@ -166,7 +166,48 @@ class _PerfilScreenState extends State<PerfilScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: AppColors.textoS),
-            onPressed: () async => await _authService.logout(),
+            onPressed: () async {
+              final confirmar = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  backgroundColor: AppColors.superficie,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  title: const Text(
+                    '¿Cerrar sesión?',
+                    style: TextStyle(color: AppColors.textoP),
+                  ),
+                  content: const Text(
+                    'Se cerrará tu sesión y volverás al inicio.',
+                    style: TextStyle(color: AppColors.textoH),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancelar',
+                          style: TextStyle(color: AppColors.textoH)),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text(
+                        'Cerrar sesión',
+                        style: TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmar == true && mounted) {
+                await _authService.logout();
+                if (!mounted) return;
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              }
+            },
           ),
         ],
       ),

@@ -323,14 +323,21 @@ class _FeedScreenState extends State<FeedScreen> {
                 }
 
                 final publicaciones = snapshot.data!.docs.where((doc) {
-                  final pub = doc.data() as Map<String, dynamic>;
-                  final userId = pub['userId'] as String? ?? '';
-                  if (_bloqueados.contains(userId)) return false;
-                  if (_busqueda.isEmpty) return true;
-                  final titulo      = (pub['titulo'] ?? '').toLowerCase();
-                  final descripcion = (pub['descripcion'] ?? '').toLowerCase();
-                  return titulo.contains(_busqueda) ||
-                      descripcion.contains(_busqueda);
+                final pub = doc.data() as Map<String, dynamic>;
+                final userId = pub['userId'] as String? ?? '';
+                if (_bloqueados.contains(userId)) return false;
+                if (_busqueda.isEmpty) return true;
+                String normalizar(String s) => s
+                    .toLowerCase()
+                    .replaceAll(RegExp(r'[áàä]'), 'a')
+                    .replaceAll(RegExp(r'[éèë]'), 'e')
+                    .replaceAll(RegExp(r'[íìï]'), 'i')
+                    .replaceAll(RegExp(r'[óòö]'), 'o')
+                    .replaceAll(RegExp(r'[úùü]'), 'u');
+                final query       = normalizar(_busqueda);
+                final titulo      = normalizar(pub['titulo'] ?? '');
+                final descripcion = normalizar(pub['descripcion'] ?? '');
+                return titulo.contains(query) || descripcion.contains(query);
                 }).toList();
 
                 if (publicaciones.isEmpty) {
@@ -454,7 +461,84 @@ class _FeedScreenState extends State<FeedScreen> {
                 icon: Icons.notifications_outlined,
                 label: 'Alertas',
                 activo: false,
-                onTap: () {},
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: AppColors.superficie,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    ),
+                    builder: (_) => StreamBuilder<QuerySnapshot>(
+                      stream: miId == null
+                          ? const Stream.empty()
+                          : FirebaseFirestore.instance
+                              .collection('intercambios')
+                              .where('para_userId', isEqualTo: miId)
+                              .where('estado', isEqualTo: 'pendiente')
+                              .orderBy('fecha', descending: true)
+                              .snapshots(),
+                      builder: (context, snap) {
+                        final docs = snap.data?.docs ?? [];
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 12),
+                            Container(
+                              width: 40, height: 4,
+                              decoration: BoxDecoration(
+                                color: AppColors.borde,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Alertas',
+                              style: TextStyle(
+                                color: AppColors.textoP,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            if (docs.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 32),
+                                child: Text(
+                                  'No tienes alertas pendientes',
+                                  style: TextStyle(color: AppColors.textoH),
+                                ),
+                              )
+                            else
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: docs.length,
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                itemBuilder: (_, i) {
+                                  final d = docs[i].data() as Map<String, dynamic>;
+                                  return ListTile(
+                                    leading: const Icon(
+                                      Icons.swap_horiz_rounded,
+                                      color: AppColors.acento,
+                                    ),
+                                    title: Text(
+                                      d['titulo'] ?? 'Intercambio pendiente',
+                                      style: const TextStyle(color: AppColors.textoP),
+                                    ),
+                                    subtitle: const Text(
+                                      'Tienes una propuesta pendiente',
+                                      style: TextStyle(color: AppColors.textoH, fontSize: 12),
+                                    ),
+                                  );
+                                },
+                              ),
+                            const SizedBox(height: 16),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
               _NavItem(
                 icon: Icons.person_outline_rounded,

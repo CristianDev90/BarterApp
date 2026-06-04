@@ -81,12 +81,14 @@ class _ReporteScreenState extends State<ReporteScreen> {
             const SizedBox(height: 20),
             const Text('Motivo del reporte:'),
             const SizedBox(height: 8),
-            ..._reportesService.motivos.map((motivo) => RadioListTile<String>(
-                  title: Text(motivo),
-                  value: motivo,
-                  groupValue: _motivoSeleccionado,
-                  onChanged: (val) => setState(() => _motivoSeleccionado = val),
-                )),
+            Column(
+              children: _reportesService.motivos.map((motivo) => RadioListTile<String>(
+                    title: Text(motivo),
+                    value: motivo,
+                    groupValue: _motivoSeleccionado,
+                    onChanged: (val) => setState(() => _motivoSeleccionado = val),
+                  )).toList(),
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: _descripcionCtrl,
