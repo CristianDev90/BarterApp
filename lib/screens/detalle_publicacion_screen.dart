@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../main.dart';
 import '../services/publicaciones_service.dart';
 import 'proponer_intercambio_screen.dart';
 import 'calificacion_screen.dart';
@@ -93,22 +92,22 @@ class _DetallePublicacionScreenState
     final service    = PublicacionesService();
 
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       appBar: AppBar(
-        backgroundColor: AppColors.appBar,
+        backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded,
-              color: AppColors.textoS, size: 20),
+          icon: Icon(Icons.arrow_back_ios_rounded,
+              color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Detalle',
+        title: Text('Detalle',
             style: TextStyle(
-                color: AppColors.textoP, fontWeight: FontWeight.bold)),
+                color: Color(0xFF2D5A27), fontWeight: FontWeight.bold)),
         actions: [
           if (esElDueno)
             IconButton(
-              icon: const Icon(Icons.delete_outline_rounded,
+              icon: Icon(Icons.delete_outline_rounded,
                   color: Colors.redAccent),
               onPressed: () async {
                 final confirmar = await _confirmarEliminar();
@@ -132,7 +131,7 @@ class _DetallePublicacionScreenState
               Container(
                 width: double.infinity,
                 height: 200,
-                color: AppColors.superficie,
+                color: const Color(0xFFEBE6D6),
                 child: const Center(
                   child: Text('🌿', style: TextStyle(fontSize: 60)),
                 ),
@@ -148,20 +147,20 @@ class _DetallePublicacionScreenState
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 5),
                     decoration: BoxDecoration(
-                      color: AppColors.superficieAlt,
+                      color: const Color(0xFFEBE6D6),
                       borderRadius: BorderRadius.circular(50),
-                      border: Border.all(color: AppColors.bordeAlt),
+                      border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.1)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.eco_outlined,
-                            size: 13, color: AppColors.acentoClaro),
+                        Icon(Icons.eco_outlined,
+                            size: 13, color: Color(0xFF2D5A27)),
                         const SizedBox(width: 5),
                         Text(
                           widget.pub['categoria'] ?? '',
-                          style: const TextStyle(
-                            color: AppColors.acentoClaro,
+                          style: TextStyle(
+                            color: Color(0xFF2D5A27),
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -174,8 +173,8 @@ class _DetallePublicacionScreenState
                   // Título
                   Text(
                     widget.pub['titulo'] ?? '',
-                    style: const TextStyle(
-                      color: AppColors.textoP,
+                    style: TextStyle(
+                      color: Color(0xFF2D5A27),
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -185,8 +184,8 @@ class _DetallePublicacionScreenState
                   // Descripción
                   Text(
                     widget.pub['descripcion'] ?? '',
-                    style: const TextStyle(
-                      color: AppColors.textoS,
+                    style: TextStyle(
+                      color: Color(0xFF2D5A27).withValues(alpha: 0.5),
                       fontSize: 15,
                       height: 1.6,
                     ),
@@ -207,27 +206,27 @@ class _DetallePublicacionScreenState
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppColors.superficie,
+                          color: const Color(0xFFEBE6D6),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.borde),
+                          border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.person_outline_rounded,
-                                color: AppColors.acento, size: 20),
+                            Icon(Icons.person_outline_rounded,
+                                color: Color(0xFF2D5A27), size: 20),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 'Ver perfil de ${_propietarioNombre ?? 'usuario'}',
-                                style: const TextStyle(
-                                  color: AppColors.acentoClaro,
+                                style: TextStyle(
+                                  color: Color(0xFF2D5A27),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
-                            const Icon(Icons.arrow_forward_ios_rounded,
-                                color: AppColors.textoH, size: 14),
+                            Icon(Icons.arrow_forward_ios_rounded,
+                                color: Color(0xFF2D5A27).withValues(alpha: 0.35), size: 14),
                           ],
                         ),
                       ),
@@ -248,22 +247,22 @@ class _DetallePublicacionScreenState
     return showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.superficie,
+        backgroundColor: const Color(0xFFEBE6D6),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
-        title: const Text('Eliminar publicación',
-            style: TextStyle(color: AppColors.textoP)),
-        content: const Text('¿Estás seguro?',
-            style: TextStyle(color: AppColors.textoH)),
+        title: Text('Eliminar publicación',
+            style: TextStyle(color: Color(0xFF2D5A27))),
+        content: Text('¿Estás seguro?',
+            style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar',
-                style: TextStyle(color: AppColors.textoH)),
+            child: Text('Cancelar',
+                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar',
+            child: Text('Eliminar',
                 style: TextStyle(color: Colors.redAccent)),
           ),
         ],
@@ -274,7 +273,7 @@ class _DetallePublicacionScreenState
   Widget _buildBotonAccion(BuildContext context) {
     if (_cargando) {
       return const Center(
-          child: CircularProgressIndicator(color: AppColors.acento));
+          child: CircularProgressIndicator(color: Color(0xFF2D5A27)));
     }
 
     if (_propuestaAceptadaId != null) {
@@ -309,29 +308,29 @@ class _DetallePublicacionScreenState
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.only(bottom: 14),
           decoration: BoxDecoration(
-            color: AppColors.superficie,
+            color: const Color(0xFFEBE6D6),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.bordeAlt),
+            border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.1)),
           ),
           child: Column(children: [
-            const Text('¡Trueque completado!',
+            Text('¡Trueque completado!',
                 style: TextStyle(
-                    color: AppColors.acentoClaro,
+                    color: Color(0xFF2D5A27),
                     fontWeight: FontWeight.bold,
                     fontSize: 15)),
             const SizedBox(height: 6),
             Text(
               '¿Cómo fue tu experiencia con $_propietarioNombre?',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: AppColors.textoH, fontSize: 13),
+              style: TextStyle(
+                  color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
             ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 5,
-                (_) => const Icon(Icons.star_rounded,
+                (_) => Icon(Icons.star_rounded,
                     color: Colors.amber, size: 28),
               ),
             ),
@@ -355,15 +354,15 @@ class _DetallePublicacionScreenState
               _verificarEstado();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.acento,
-              foregroundColor: AppColors.fondo,
+              backgroundColor: const Color(0xFF2D5A27),
+              foregroundColor: const Color(0xFFEBE6D6),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14)),
               elevation: 0,
             ),
-            icon: const Icon(Icons.star_outline_rounded),
+            icon: Icon(Icons.star_outline_rounded),
             label: Text('Calificar a $_propietarioNombre',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 15, fontWeight: FontWeight.bold)),
           ),
         ),
@@ -385,13 +384,13 @@ class _DetallePublicacionScreenState
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.acento,
-          foregroundColor: AppColors.fondo,
+          backgroundColor: const Color(0xFF2D5A27),
+          foregroundColor: const Color(0xFFEBE6D6),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14)),
           elevation: 0,
         ),
-        child: const Text('Proponer trueque',
+        child: Text('Proponer trueque',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
     );

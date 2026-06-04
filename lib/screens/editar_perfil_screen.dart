@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import '../main.dart';
 import '../services/imagen_service.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
@@ -127,24 +126,24 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       appBar: AppBar(
-        backgroundColor: AppColors.appBar,
+        backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textoS),
+          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
           onPressed: () => Navigator.pop(context),
         ),
         title: ShaderMask(
           shaderCallback: (bounds) => const LinearGradient(
-            colors: [AppColors.acento, AppColors.acentoClaro],
+            colors: [Color(0xFF2D5A27), Color(0xFF2D5A27)],
           ).createShader(bounds),
-          child: const Text(
+          child: Text(
             'Editar perfil',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
-              color: Colors.white,
+              color: Color(0xFF2D5A27),
             ),
           ),
         ),
@@ -164,7 +163,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(50),
                       gradient: const LinearGradient(
-                        colors: [AppColors.acento, AppColors.acentoClaro],
+                        colors: [Color(0xFF2D5A27), Color(0xFF2D5A27)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -189,8 +188,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                                               : 'U';
                                       return Text(
                                         letra,
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: Color(0xFF2D5A27),
                                           fontSize: 38,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -208,22 +207,22 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                       height: 30,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                            colors: [AppColors.acento, AppColors.acentoClaro]),
+                            colors: [Color(0xFF2D5A27), Color(0xFF2D5A27)]),
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                            color: AppColors.fondo, width: 2),
+                            color: const Color(0xFFEBE6D6), width: 2),
                       ),
-                      child: const Icon(Icons.camera_alt,
-                          color: Colors.white, size: 16),
+                      child: Icon(Icons.camera_alt,
+                          color: Color(0xFF2D5A27), size: 16),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Toca para cambiar foto',
-              style: TextStyle(color: AppColors.textoH, fontSize: 12),
+              style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 12),
             ),
             const SizedBox(height: 28),
             _buildTextField(
@@ -246,7 +245,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               height: 52,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppColors.acento, AppColors.acentoClaro]),
+                  gradient: const LinearGradient(colors: [Color(0xFF2D5A27), Color(0xFF2D5A27)]),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ElevatedButton(
@@ -259,13 +258,13 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                     ),
                   ),
                   child: _cargando
-                      ? const CircularProgressIndicator(color: AppColors.fondo)
-                      : const Text(
+                      ? const CircularProgressIndicator(color: Color(0xFFEBE6D6))
+                      : Text(
                           'Guardar cambios',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.fondo,
+                            color: Color(0xFFEBE6D6),
                           ),
                         ),
                 ),
@@ -290,22 +289,22 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       controller: controller,
       maxLines: maxLines,
       textCapitalization: capitalization,
-      style: const TextStyle(color: AppColors.textoP),
+      style: TextStyle(color: Color(0xFF2D5A27)),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.textoH),
-        labelStyle: const TextStyle(color: AppColors.textoS),
-        prefixIcon: Icon(icon, color: AppColors.textoH),
+        hintStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
+        labelStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
+        prefixIcon: Icon(icon, color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
         filled: true,
-        fillColor: AppColors.superficie,
+        fillColor: const Color(0xFFEBE6D6),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.acentoClaro, width: 1.5),
+          borderSide: BorderSide(color: Color(0xFF2D5A27), width: 1.5),
         ),
       ),
     );
@@ -413,13 +412,13 @@ class _CropScreenState extends State<_CropScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: AppColors.appBar,
+        backgroundColor: const Color(0xFFEBE6D6),
         leading: IconButton(
-          icon: const Icon(Icons.close, color: AppColors.textoS),
+          icon: Icon(Icons.close, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Ajustar foto',
-            style: TextStyle(color: Colors.white, fontSize: 18)),
+        title: Text('Ajustar foto',
+            style: TextStyle(color: Color(0xFF2D5A27), fontSize: 18)),
         actions: [
           TextButton(
             onPressed: _procesando ? null : _confirmar,
@@ -428,16 +427,16 @@ class _CropScreenState extends State<_CropScreen> {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2),
+                        color: Color(0xFF2D5A27), strokeWidth: 2),
                   )
                 : ShaderMask(
                     shaderCallback: (b) => const LinearGradient(
-                      colors: [AppColors.acento, AppColors.acentoClaro],
+                      colors: [Color(0xFF2D5A27), Color(0xFF2D5A27)],
                     ).createShader(b),
-                    child: const Text(
+                    child: Text(
                       'Usar',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFF2D5A27),
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -448,7 +447,7 @@ class _CropScreenState extends State<_CropScreen> {
       ),
       body: _imagen == null
           ? const Center(
-              child: CircularProgressIndicator(color: AppColors.acentoClaro))
+              child: CircularProgressIndicator(color: Color(0xFF2D5A27)))
           : GestureDetector(
               onScaleStart: (details) {
                 _baseScale = _scale;
@@ -484,14 +483,14 @@ class _CropScreenState extends State<_CropScreen> {
                           screenSize.width, screenSize.height),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     bottom: 32,
                     left: 0,
                     right: 0,
                     child: Text(
                       'Mueve y pellizca para ajustar',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white60, fontSize: 13),
+                      style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.6), fontSize: 13),
                     ),
                   ),
                 ],
@@ -523,7 +522,7 @@ class _CircleOverlayPainter extends CustomPainter {
       radius,
       Paint()
         ..style = PaintingStyle.stroke
-        ..color = Colors.white54
+        ..color = Color(0xFF2D5A27).withValues(alpha: 0.5)
         ..strokeWidth = 1.5,
     );
   }

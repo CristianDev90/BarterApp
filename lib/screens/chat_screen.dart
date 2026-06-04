@@ -93,14 +93,14 @@ class _ChatScreenState extends State<ChatScreen> {
           gradient: esMio
               ? const LinearGradient(colors: [_magenta, _cian])
               : null,
-          color: esMio ? null : const Color(0xFF0F1422),
+          color: esMio ? null : const Color(0xFFEBE6D6),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
             bottomLeft: Radius.circular(esMio ? 16 : 4),
             bottomRight: Radius.circular(esMio ? 4 : 16),
           ),
-          border: esMio ? null : Border.all(color: Colors.white10),
+          border: esMio ? null : Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
         ),
         child: Column(
           crossAxisAlignment:
@@ -108,12 +108,12 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(
               texto,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: Color(0xFF2D5A27), fontSize: 14),
             ),
             const SizedBox(height: 4),
             Text(
               hora,
-              style: const TextStyle(color: Colors.white54, fontSize: 10),
+              style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.5), fontSize: 10),
             ),
           ],
         ),
@@ -126,10 +126,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: _fondo,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1422),
+        backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white54),
+          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
           onPressed: () => Navigator.pop(context),
         ),
         // Bug 5: todo el título es tappable para ir al perfil
@@ -153,8 +153,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             widget.otroUsuarioNombre.isNotEmpty
                                 ? widget.otroUsuarioNombre[0].toUpperCase()
                                 : 'U',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Color(0xFF2D5A27),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -173,18 +173,18 @@ class _ChatScreenState extends State<ChatScreen> {
                               .createShader(bounds),
                       child: Text(
                         widget.otroUsuarioNombre,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Color(0xFF2D5A27),
                           fontWeight: FontWeight.bold,
                           fontSize: 17,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const Text(
+                    Text(
                       'Ver perfil',
                       style: TextStyle(
-                        color: Colors.white38,
+                        color: Color(0xFF2D5A27).withValues(alpha: 0.35),
                         fontSize: 11,
                       ),
                     ),
@@ -210,11 +210,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 final mensajes = snap.data?.docs ?? [];
  
                 if (mensajes.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'Aún no hay mensajes.\n¡Saluda al otro usuario! 👋',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white38, fontSize: 14),
+                      style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
                     ),
                   );
                 }
@@ -237,22 +237,22 @@ class _ChatScreenState extends State<ChatScreen> {
  
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: const BoxDecoration(
-              color: Color(0xFF0F1422),
-              border: Border(top: BorderSide(color: Colors.white10)),
+            decoration: BoxDecoration(
+              color: Color(0xFFEBE6D6),
+              border: Border(top: BorderSide(color: Color(0xFF2D5A27).withValues(alpha: 0.08))),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _mensajeCtrl,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: Color(0xFF2D5A27)),
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       hintText: 'Escribe un mensaje...',
-                      hintStyle: const TextStyle(color: Colors.white24),
+                      hintStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.2)),
                       filled: true,
-                      fillColor: Colors.white10,
+                      fillColor: Color(0xFF2D5A27).withValues(alpha: 0.08),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 10),
                       border: OutlineInputBorder(
@@ -274,8 +274,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           const LinearGradient(colors: [_magenta, _cian]),
                       borderRadius: BorderRadius.circular(22),
                     ),
-                    child: const Icon(Icons.send_rounded,
-                        color: Colors.white, size: 20),
+                    child: Icon(Icons.send_rounded,
+                        color: Color(0xFF2D5A27), size: 20),
                   ),
                 ),
               ],

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../main.dart';
 import '../services/intercambio_service.dart';
 import 'chat_screen.dart';
 
@@ -35,7 +34,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
       case 'aceptado':  return Colors.greenAccent;
       case 'rechazado': return Colors.redAccent;
       case 'cancelado': return Colors.orange;
-      default:          return AppColors.textoH;
+      default:          return Color(0xFF2D5A27).withValues(alpha: 0.35);
     }
   }
 
@@ -77,9 +76,9 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
             width: 88,
             height: 88,
             decoration: BoxDecoration(
-              color: AppColors.superficie,
+              color: const Color(0xFFEBE6D6),
               borderRadius: BorderRadius.circular(44),
-              border: Border.all(color: AppColors.borde),
+              border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
             ),
             child: const Center(
               child: Text('🌿', style: TextStyle(fontSize: 40)),
@@ -88,8 +87,8 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
           const SizedBox(height: 20),
           Text(mensaje,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: AppColors.textoS, fontSize: 15)),
+              style: TextStyle(
+                  color: Color(0xFF2D5A27).withValues(alpha: 0.5), fontSize: 15)),
         ],
       ),
     );
@@ -100,24 +99,24 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.superficie,
+        backgroundColor: const Color(0xFFEBE6D6),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
-        title: const Text('Eliminar del historial',
-            style: TextStyle(color: AppColors.textoP)),
-        content: const Text(
+        title: Text('Eliminar del historial',
+            style: TextStyle(color: Color(0xFF2D5A27))),
+        content: Text(
           'Solo desaparecerá de tu historial.',
-          style: TextStyle(color: AppColors.textoH),
+          style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar',
-                style: TextStyle(color: AppColors.textoH)),
+            child: Text('Cancelar',
+                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar',
+            child: Text('Eliminar',
                 style: TextStyle(color: Colors.redAccent)),
           ),
         ],
@@ -156,9 +155,9 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
               margin: const EdgeInsets.symmetric(
                   horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.superficie,
+                color: const Color(0xFFEBE6D6),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.borde),
+                border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -171,7 +170,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: AppColors.acento,
+                          color: const Color(0xFF2D5A27),
                           borderRadius: BorderRadius.circular(22),
                         ),
                         child: ClipRRect(
@@ -183,8 +182,8 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                                     nombre.isNotEmpty
                                         ? nombre[0].toUpperCase()
                                         : 'U',
-                                    style: const TextStyle(
-                                      color: AppColors.fondo,
+                                    style: TextStyle(
+                                      color: Color(0xFFEBE6D6),
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
                                     ),
@@ -198,14 +197,14 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(nombre,
-                                style: const TextStyle(
-                                    color: AppColors.textoP,
+                                style: TextStyle(
+                                    color: Color(0xFF2D5A27),
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14)),
                             const SizedBox(height: 2),
                             Text(titulo,
-                                style: const TextStyle(
-                                    color: AppColors.textoH,
+                                style: TextStyle(
+                                    color: Color(0xFF2D5A27).withValues(alpha: 0.35),
                                     fontSize: 12),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis),
@@ -238,13 +237,13 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.superficieAlt,
+                        color: const Color(0xFFEBE6D6),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.borde),
+                        border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                       ),
                       child: Text(mensaje,
-                          style: const TextStyle(
-                              color: AppColors.textoS, fontSize: 13)),
+                          style: TextStyle(
+                              color: Color(0xFF2D5A27).withValues(alpha: 0.5), fontSize: 13)),
                     ),
                     const SizedBox(height: 14),
 
@@ -256,12 +255,12 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                             onPressed: () async =>
                                 await _service.rechazarIntercambio(doc.id),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
+                              side: BorderSide(
                                   color: Colors.redAccent),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: const Text('Rechazar',
+                            child: Text('Rechazar',
                                 style:
                                     TextStyle(color: Colors.redAccent)),
                           ),
@@ -272,13 +271,13 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                             onPressed: () async =>
                                 await _service.aceptarIntercambio(doc.id),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.acento,
-                              foregroundColor: AppColors.fondo,
+                              backgroundColor: const Color(0xFF2D5A27),
+                              foregroundColor: const Color(0xFFEBE6D6),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
                               elevation: 0,
                             ),
-                            child: const Text('Aceptar',
+                            child: Text('Aceptar',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold)),
                           ),
@@ -293,11 +292,11 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                           onPressed: () async =>
                               await _service.cancelarIntercambio(doc.id),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.orange),
+                            side: BorderSide(color: Colors.orange),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Cancelar propuesta',
+                          child: Text('Cancelar propuesta',
                               style: TextStyle(color: Colors.orange)),
                         ),
                       ),
@@ -321,16 +320,16 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.acento,
-                              foregroundColor: AppColors.fondo,
+                              backgroundColor: const Color(0xFF2D5A27),
+                              foregroundColor: const Color(0xFFEBE6D6),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
                               elevation: 0,
                             ),
-                            icon: const Icon(
+                            icon: Icon(
                                 Icons.chat_bubble_outline_rounded,
                                 size: 18),
-                            label: const Text('Abrir chat',
+                            label: Text('Abrir chat',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold)),
                           ),
@@ -347,14 +346,14 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                             onPressed: () =>
                                 _confirmarEliminar(context, doc.id),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
+                              side: BorderSide(
                                   color: Colors.redAccent),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
                             ),
-                            icon: const Icon(Icons.delete_outline_rounded,
+                            icon: Icon(Icons.delete_outline_rounded,
                                 color: Colors.redAccent, size: 16),
-                            label: const Text('Eliminar del historial',
+                            label: Text('Eliminar del historial',
                                 style: TextStyle(color: Colors.redAccent)),
                           ),
                         ),
@@ -375,7 +374,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
           return const Center(
-              child: CircularProgressIndicator(color: AppColors.acento));
+              child: CircularProgressIndicator(color: Color(0xFF2D5A27)));
         }
         final docs = (snap.data?.docs ?? []).where((doc) {
           final data = doc.data() as Map<String, dynamic>;
@@ -403,18 +402,18 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       appBar: AppBar(
-        backgroundColor: AppColors.appBar,
+        backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded,
-              color: AppColors.textoS, size: 20),
+          icon: Icon(Icons.arrow_back_ios_rounded,
+              color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Mis trueques',
+        title: Text('Mis trueques',
             style: TextStyle(
-                color: AppColors.textoP,
+                color: Color(0xFF2D5A27),
                 fontWeight: FontWeight.bold,
                 fontSize: 18)),
         bottom: PreferredSize(
@@ -429,16 +428,16 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
               final count = snap.data?.docs.length ?? 0;
               return TabBar(
                 controller: _tabCtrl,
-                indicatorColor: AppColors.acento,
+                indicatorColor: const Color(0xFF2D5A27),
                 indicatorWeight: 2.5,
-                labelColor: AppColors.acentoClaro,
-                unselectedLabelColor: AppColors.textoH,
+                labelColor: const Color(0xFF2D5A27),
+                unselectedLabelColor: Color(0xFF2D5A27).withValues(alpha: 0.35),
                 tabs: [
                   Tab(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('Recibidos',
+                        Text('Recibidos',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         if (count > 0) ...[
                           const SizedBox(width: 6),
@@ -446,12 +445,12 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.acento,
+                              color: const Color(0xFF2D5A27),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text('$count',
-                                style: const TextStyle(
-                                    color: AppColors.fondo,
+                                style: TextStyle(
+                                    color: Color(0xFFEBE6D6),
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold)),
                           ),

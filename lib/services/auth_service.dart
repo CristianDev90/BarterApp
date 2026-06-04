@@ -11,7 +11,10 @@ class AuthService {
 
   AuthService();
 
+  // Stream para escuchar cambios de sesión en tiempo real
   Stream<User?> get estadoAuth => _auth.authStateChanges();
+
+  // Usuario actual
   User? get usuarioActual => _auth.currentUser;
 
   // ─── REGISTRO ────────────────────────────────────────────────────────────────
@@ -21,6 +24,7 @@ class AuthService {
         email: email,
         password: password,
       );
+
       if (cred.user != null) {
         final token = await _messaging.getToken();
         await _db.collection('usuarios').doc(cred.user!.uid).set({
@@ -45,12 +49,13 @@ class AuthService {
         email: email,
         password: password,
       );
+
       if (cred.user != null) {
         final token = await _messaging.getToken();
-        await _db.collection('usuarios').doc(cred.user!.uid).set({
+        await _db.collection('usuarios').doc(cred.user!.uid).update({
           'fcm_token': token ?? '',
           'ultimo_login': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        });
       }
     } on FirebaseAuthException {
       rethrow;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../main.dart';
 import '../services/auth_service.dart';
 
 class RegistroScreen extends StatefulWidget {
@@ -81,13 +80,13 @@ class _RegistroScreenState extends State<RegistroScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       appBar: AppBar(
-        backgroundColor: AppColors.appBar,
+        backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios,
-              color: AppColors.textoS, size: 20),
+          icon: Icon(Icons.arrow_back_ios,
+              color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -98,18 +97,18 @@ class _RegistroScreenState extends State<RegistroScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Crear cuenta',
                 style: TextStyle(
-                  color: AppColors.textoP,
+                  color: Color(0xFF2D5A27),
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Únete y empieza a intercambiar',
-                style: TextStyle(color: AppColors.textoH, fontSize: 14),
+                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
               ),
               const SizedBox(height: 32),
 
@@ -135,7 +134,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 suffixIcon: IconButton(
                   icon: Icon(
                     _verPassword ? Icons.visibility_off : Icons.visibility,
-                    color: AppColors.textoH,
+                    color: Color(0xFF2D5A27).withValues(alpha: 0.35),
                   ),
                   onPressed: () =>
                       setState(() => _verPassword = !_verPassword),
@@ -155,8 +154,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 child: ElevatedButton(
                   onPressed: _cargando ? null : _registrar,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.acento,
-                    foregroundColor: AppColors.fondo,
+                    backgroundColor: const Color(0xFF2D5A27),
+                    foregroundColor: const Color(0xFFEBE6D6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -167,11 +166,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
-                            color: AppColors.fondo,
+                            color: Color(0xFFEBE6D6),
                             strokeWidth: 2.5,
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Registrarse',
                           style: TextStyle(
                             fontSize: 16,
@@ -202,26 +201,26 @@ class _RegistroScreenState extends State<RegistroScreen> {
       obscureText: obscureText,
       keyboardType: keyboardType,
       textCapitalization: capitalization,
-      style: const TextStyle(color: AppColors.textoP),
+      style: TextStyle(color: Color(0xFF2D5A27)),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textoH),
-        prefixIcon: Icon(icon, color: AppColors.textoS, size: 20),
+        labelStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
+        prefixIcon: Icon(icon, color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: AppColors.superficie,
+        fillColor: const Color(0xFFEBE6D6),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.borde),
+          borderSide: BorderSide(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide:
-              const BorderSide(color: AppColors.acento, width: 1.5),
+              BorderSide(color: Color(0xFF2D5A27), width: 1.5),
         ),
       ),
     );

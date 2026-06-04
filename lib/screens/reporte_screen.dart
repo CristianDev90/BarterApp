@@ -68,7 +68,7 @@ class _ReporteScreenState extends State<ReporteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Reportar usuario')),
+      appBar: AppBar(title: Text('Reportar usuario')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -76,18 +76,22 @@ class _ReporteScreenState extends State<ReporteScreen> {
           children: [
             Text(
               'Reportando a: ${widget.usuarioReportadoNombre}',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 20),
-            const Text('Motivo del reporte:'),
+            Text('Motivo del reporte:'),
             const SizedBox(height: 8),
-            Column(
-              children: _reportesService.motivos.map((motivo) => RadioListTile<String>(
-                    title: Text(motivo),
-                    value: motivo,
-                    groupValue: _motivoSeleccionado,
-                    onChanged: (val) => setState(() => _motivoSeleccionado = val),
-                  )).toList(),
+            RadioGroup<String>(
+              groupValue: _motivoSeleccionado,
+              onChanged: (value) => setState(() => _motivoSeleccionado = value),
+              child: Column(
+                children: _reportesService.motivos
+                    .map((motivo) => RadioListTile<String>(
+                          title: Text(motivo),
+                          value: motivo,
+                        ))
+                    .toList(),
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -105,10 +109,10 @@ class _ReporteScreenState extends State<ReporteScreen> {
                     onPressed: _enviarReporte,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF2D5A27),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('Enviar reporte'),
+                    child: Text('Enviar reporte'),
                   ),
           ],
         ),

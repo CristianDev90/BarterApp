@@ -91,22 +91,22 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
     return Scaffold(
       backgroundColor: _fondo,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1422),
+        backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white54),
+          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
           onPressed: () => Navigator.pop(context),
         ),
         title: ShaderMask(
           shaderCallback: (bounds) => const LinearGradient(
             colors: [_magenta, _cian],
           ).createShader(bounds),
-          child: const Text(
+          child: Text(
             'Calificar usuario',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
-              color: Colors.white,
+              color: Color(0xFF2D5A27),
             ),
           ),
         ),
@@ -121,9 +121,9 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F1422),
+                color: const Color(0xFFEBE6D6),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white10),
+                border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
               ),
               child: Column(
                 children: [
@@ -131,18 +131,18 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
                     shaderCallback: (bounds) => const LinearGradient(
                       colors: [_magenta, _cian],
                     ).createShader(bounds),
-                    child: const Icon(Icons.person, size: 40, color: Colors.white),
+                    child: Icon(Icons.person, size: 40, color: Color(0xFF2D5A27)),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     '¿Cómo fue tu experiencia con',
-                    style: TextStyle(color: Colors.white54, fontSize: 13),
+                    style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.5), fontSize: 13),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     widget.nombreUsuario,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Color(0xFF2D5A27),
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -151,10 +151,10 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
               ),
             ),
             const SizedBox(height: 28),
-            const Text(
+            Text(
               'Puntuación',
               style: TextStyle(
-                color: Colors.white70,
+                color: Color(0xFF2D5A27).withValues(alpha: 0.7),
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
@@ -171,7 +171,7 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
                       index < _puntuacion
                           ? Icons.star_rounded
                           : Icons.star_outline_rounded,
-                      color: index < _puntuacion ? Colors.amber : Colors.white24,
+                      color: index < _puntuacion ? Colors.amber : Color(0xFF2D5A27).withValues(alpha: 0.2),
                       size: 48,
                     ),
                   ),
@@ -179,10 +179,10 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
               }),
             ),
             const SizedBox(height: 28),
-            const Text(
+            Text(
               'Comentario',
               style: TextStyle(
-                color: Colors.white70,
+                color: Color(0xFF2D5A27).withValues(alpha: 0.7),
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
@@ -191,19 +191,19 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
             TextField(
               controller: _comentarioCtrl,
               maxLines: 4,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Color(0xFF2D5A27)),
               decoration: InputDecoration(
                 hintText: '¿Cómo fue el trueque? ¿Llegó en buen estado?',
-                hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                hintStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.2), fontSize: 13),
                 filled: true,
-                fillColor: Colors.white10,
+                fillColor: Color(0xFF2D5A27).withValues(alpha: 0.08),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: _cian, width: 1.5),
+                  borderSide: BorderSide(color: _cian, width: 1.5),
                 ),
               ),
             ),
@@ -226,13 +226,13 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
                     ),
                   ),
                   child: _cargando
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
+                      ? const CircularProgressIndicator(color: Color(0xFF2D5A27))
+                      : Text(
                           'Enviar calificación',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Color(0xFF2D5A27),
                           ),
                         ),
                 ),

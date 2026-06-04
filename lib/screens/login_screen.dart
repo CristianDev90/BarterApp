@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../main.dart';
 import '../services/auth_service.dart';
 import 'registro_screen.dart';
 
@@ -66,16 +65,16 @@ class _LoginScreenState extends State<LoginScreen> {
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.superficie,
+        backgroundColor: const Color(0xFFEBE6D6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Restablecer contraseña',
-            style: TextStyle(color: AppColors.textoP)),
+        title: Text('Restablecer contraseña',
+            style: TextStyle(color: Color(0xFF2D5A27))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.',
-              style: TextStyle(color: AppColors.textoH, fontSize: 13),
+              style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
             ),
             const SizedBox(height: 16),
             _buildTextField(
@@ -89,8 +88,8 @@ class _LoginScreenState extends State<LoginScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar',
-                style: TextStyle(color: AppColors.textoH)),
+            child: Text('Cancelar',
+                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
           ),
           TextButton(
             onPressed: () async {
@@ -114,9 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ));
               }
             },
-            child: const Text('Enviar',
+            child: Text('Enviar',
                 style: TextStyle(
-                    color: AppColors.acentoClaro,
+                    color: Color(0xFF2D5A27),
                     fontWeight: FontWeight.bold)),
           ),
         ],
@@ -127,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -140,9 +139,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: AppColors.superficie,
+                  color: const Color(0xFFEBE6D6),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.borde, width: 1.5),
+                  border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08), width: 1.5),
                 ),
                 child: const Center(
                   child: Text('🌿', style: TextStyle(fontSize: 46)),
@@ -156,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextSpan(
                       text: 'Barter',
                       style: TextStyle(
-                        color: AppColors.textoP,
+                        color: Color(0xFF2D5A27),
                         fontSize: 30,
                         fontWeight: FontWeight.w800,
                       ),
@@ -164,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextSpan(
                       text: 'App',
                       style: TextStyle(
-                        color: AppColors.acentoClaro,
+                        color: Color(0xFF2D5A27),
                         fontSize: 30,
                         fontWeight: FontWeight.w800,
                       ),
@@ -173,9 +172,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Intercambia lo que no usas',
-                style: TextStyle(color: AppColors.textoH, fontSize: 14),
+                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
               ),
               const SizedBox(height: 48),
 
@@ -195,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 suffixIcon: IconButton(
                   icon: Icon(
                     _verPassword ? Icons.visibility_off : Icons.visibility,
-                    color: AppColors.textoH,
+                    color: Color(0xFF2D5A27).withValues(alpha: 0.35),
                   ),
                   onPressed: () =>
                       setState(() => _verPassword = !_verPassword),
@@ -207,9 +206,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: _mostrarDialogoRestablecer,
-                  child: const Text(
+                  child: Text(
                     '¿Olvidaste tu contraseña?',
-                    style: TextStyle(color: AppColors.textoH, fontSize: 13),
+                    style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
                   ),
                 ),
               ),
@@ -223,10 +222,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _canLogin && !_loading ? _login : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _canLogin
-                        ? AppColors.acento
-                        : AppColors.superficie,
-                    foregroundColor: AppColors.fondo,
-                    disabledBackgroundColor: AppColors.superficie,
+                        ? const Color(0xFF2D5A27)
+                        : const Color(0xFFEBE6D6),
+                    foregroundColor: const Color(0xFFEBE6D6),
+                    disabledBackgroundColor: const Color(0xFFEBE6D6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -237,11 +236,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
-                            color: AppColors.fondo,
+                            color: Color(0xFFEBE6D6),
                             strokeWidth: 2.5,
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Iniciar sesión',
                           style: TextStyle(
                             fontSize: 16,
@@ -255,8 +254,8 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('¿No tienes cuenta?',
-                      style: TextStyle(color: AppColors.textoH)),
+                  Text('¿No tienes cuenta?',
+                      style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
                   TextButton(
                     onPressed: () => Navigator.push(
                       context,
@@ -265,10 +264,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             RegistroScreen(authService: widget.authService),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Regístrate',
                       style: TextStyle(
-                        color: AppColors.acentoClaro,
+                        color: Color(0xFF2D5A27),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -294,26 +293,26 @@ class _LoginScreenState extends State<LoginScreen> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(color: AppColors.textoP),
+      style: TextStyle(color: Color(0xFF2D5A27)),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textoH),
-        prefixIcon: Icon(icon, color: AppColors.textoS, size: 20),
+        labelStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
+        prefixIcon: Icon(icon, color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: AppColors.superficie,
+        fillColor: const Color(0xFFEBE6D6),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.borde),
+          borderSide: BorderSide(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide:
-              const BorderSide(color: AppColors.acento, width: 1.5),
+              BorderSide(color: Color(0xFF2D5A27), width: 1.5),
         ),
       ),
     );

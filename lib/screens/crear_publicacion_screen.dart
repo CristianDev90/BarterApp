@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../main.dart';
 import '../services/publicaciones_service.dart';
 import '../services/imagen_service.dart';
 
@@ -105,19 +104,19 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       appBar: AppBar(
-        backgroundColor: AppColors.appBar,
+        backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded,
-              color: AppColors.textoS, size: 20),
+          icon: Icon(Icons.arrow_back_ios_rounded,
+              color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Nueva publicación',
           style: TextStyle(
-            color: AppColors.textoP,
+            color: Color(0xFF2D5A27),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -134,12 +133,12 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
               child: Container(
                 height: 200,
                 decoration: BoxDecoration(
-                  color: AppColors.superficie,
+                  color: const Color(0xFFEBE6D6),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: _imagenSeleccionada != null
-                        ? AppColors.acento
-                        : AppColors.bordeAlt,
+                        ? const Color(0xFF2D5A27)
+                        : Color(0xFF2D5A27).withValues(alpha: 0.1),
                     width: _imagenSeleccionada != null ? 1.5 : 1,
                   ),
                 ),
@@ -158,19 +157,19 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: AppColors.fondo
+                                  color: const Color(0xFFEBE6D6)
                                       .withValues(alpha: 0.7),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: const Row(
                                   children: [
                                     Icon(Icons.edit_outlined,
-                                        color: AppColors.acentoClaro,
+                                        color: Color(0xFF2D5A27),
                                         size: 14),
                                     SizedBox(width: 4),
                                     Text('Cambiar',
                                         style: TextStyle(
-                                            color: AppColors.acentoClaro,
+                                            color: Color(0xFF2D5A27),
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold)),
                                   ],
@@ -182,20 +181,20 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       )
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.add_photo_alternate_outlined,
-                              size: 44, color: AppColors.acento),
+                              size: 44, color: Color(0xFF2D5A27)),
                           SizedBox(height: 10),
                           Text(
                             'Agregar foto (opcional)',
                             style: TextStyle(
-                                color: AppColors.textoH, fontSize: 14),
+                                color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
                           ),
                           SizedBox(height: 4),
                           Text(
                             'Toca para seleccionar',
                             style: TextStyle(
-                                color: AppColors.textoH, fontSize: 12),
+                                color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 12),
                           ),
                         ],
                       ),
@@ -224,35 +223,35 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: AppColors.superficie,
+                color: const Color(0xFFEBE6D6),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.borde),
+                border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: _categoriaSeleccionada,
-                  dropdownColor: AppColors.superficie,
-                  hint: Row(children: const [
+                  dropdownColor: const Color(0xFFEBE6D6),
+                  hint: Row(children: [
                     Icon(Icons.category_outlined,
-                        color: AppColors.textoS, size: 20),
+                        color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
                     SizedBox(width: 12),
                     Text('Selecciona una categoría',
-                        style: TextStyle(color: AppColors.textoH)),
+                        style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
                   ]),
                   isExpanded: true,
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                      color: AppColors.textoH),
+                  icon: Icon(Icons.keyboard_arrow_down_rounded,
+                      color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
                   items: _categorias.map((cat) {
                     return DropdownMenuItem<String>(
                       value: cat['label'] as String,
                       child: Row(
                         children: [
                           Icon(cat['icon'] as IconData,
-                              color: AppColors.textoS, size: 18),
+                              color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 18),
                           const SizedBox(width: 12),
                           Text(cat['label'] as String,
                               style:
-                                  const TextStyle(color: AppColors.textoP)),
+                                  TextStyle(color: Color(0xFF2D5A27))),
                         ],
                       ),
                     );
@@ -270,8 +269,8 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
               child: ElevatedButton(
                 onPressed: _cargando ? null : _publicar,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.acento,
-                  foregroundColor: AppColors.fondo,
+                  backgroundColor: const Color(0xFF2D5A27),
+                  foregroundColor: const Color(0xFFEBE6D6),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
@@ -281,7 +280,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                         width: 22,
                         height: 22,
                         child: CircularProgressIndicator(
-                          color: AppColors.fondo,
+                          color: Color(0xFFEBE6D6),
                           strokeWidth: 2.5,
                         ),
                       )
@@ -289,7 +288,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                         _subiendoImagen
                             ? 'Subiendo imagen...'
                             : 'Publicar',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -311,25 +310,25 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(color: AppColors.textoP),
+      style: TextStyle(color: Color(0xFF2D5A27)),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textoH),
-        prefixIcon: Icon(icon, color: AppColors.textoS, size: 20),
+        labelStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
+        prefixIcon: Icon(icon, color: Color(0xFF2D5A27).withValues(alpha: 0.5), size: 20),
         filled: true,
-        fillColor: AppColors.superficie,
+        fillColor: const Color(0xFFEBE6D6),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.borde),
+          borderSide: BorderSide(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide:
-              const BorderSide(color: AppColors.acento, width: 1.5),
+              BorderSide(color: Color(0xFF2D5A27), width: 1.5),
         ),
       ),
     );

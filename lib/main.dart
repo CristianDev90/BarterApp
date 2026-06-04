@@ -8,19 +8,19 @@ import 'screens/splash_screen.dart';
 import 'services/auth_service.dart';
 import 'services/notificaciones_service.dart';
  
-// ── Paleta global BarterApp Verde ─────────────────────────────────────────
+// ── Paleta global BarterApp Verde Claro ───────────────────────────────────
 class AppColors {
-  static const fondo        = Color(0xFF0D1F0F);
-  static const superficie   = Color(0xFF152318);
-  static const superficieAlt= Color(0xFF1A2E1C);
-  static const borde        = Color(0xFF1E3A20);
-  static const bordeAlt     = Color(0xFF2A4A2C);
-  static const acento       = Color(0xFF5DC44C);
-  static const acentoClaro  = Color(0xFF7EE86A);
-  static const textoP       = Color(0xFFE8F5E9);
-  static const textoS       = Color(0xFF8AB88C);
-  static const textoH       = Color(0xFF5A7A5C);
-  static const appBar       = Color(0xFF0F1F10);
+  static const fondo        = Color(0xFFEBE6D6);
+  static const superficie   = Color(0xFFEBE6D6);
+  static const superficieAlt= Color(0xFFEBE6D6);
+  static const borde        = Color(0xFF2D5A27);
+  static const bordeAlt     = Color(0xFF2D5A27);
+  static const acento       = Color(0xFF2D5A27);
+  static const acentoClaro  = Color(0xFF2D5A27);
+  static const textoP       = Color(0xFF2D5A27);
+  static const textoS       = Color(0xFF2D5A27);
+  static const textoH       = Color(0xFF2D5A27);
+  static const appBar       = Color(0xFFEBE6D6);
 }
  
 void main() async {
@@ -41,14 +41,14 @@ class MyApp extends StatelessWidget {
       title: 'BarterApp',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.dark(
-          primary:    AppColors.acento,
-          secondary:  AppColors.acentoClaro,
-          surface:    AppColors.superficie,
-          onPrimary:  AppColors.fondo,
-          onSurface:  AppColors.textoP,
+        colorScheme: ColorScheme.light(
+          primary:    const Color(0xFF2D5A27),
+          secondary:  const Color(0xFF2D5A27),
+          surface:    const Color(0xFFEBE6D6),
+          onPrimary:  const Color(0xFFEBE6D6),
+          onSurface:  const Color(0xFF2D5A27),
         ),
-        scaffoldBackgroundColor: AppColors.fondo,
+        scaffoldBackgroundColor: const Color(0xFFEBE6D6),
         useMaterial3: true,
         fontFamily: 'Nunito',
         pageTransitionsTheme: const PageTransitionsTheme(
@@ -118,9 +118,9 @@ class _AppRootState extends State<AppRoot> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            backgroundColor: AppColors.fondo,
+            backgroundColor: Color(0xFFEBE6D6),
             body: Center(
-              child: CircularProgressIndicator(color: AppColors.acento),
+              child: CircularProgressIndicator(color: Color(0xFF2D5A27)),
             ),
           );
         }

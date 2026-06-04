@@ -76,22 +76,22 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF0F1422),
+        backgroundColor: const Color(0xFFEBE6D6),
         title: Text(
           '¿$accion a $nombre?',
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Color(0xFF2D5A27)),
         ),
         content: Text(
           _estaBloqueado
               ? 'Volverás a ver sus publicaciones y podrá contactarte.'
               : 'No verás sus publicaciones ni podrá contactarte.',
-          style: const TextStyle(color: Colors.white60),
+          style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.6)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar',
-                style: TextStyle(color: Colors.white38)),
+            child: Text('Cancelar',
+                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -149,10 +149,10 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
   // ── Widget AppBar compartido para reutilizar ─────────────────────────────
   AppBar _buildAppBar(String nombre) {
     return AppBar(
-      backgroundColor: const Color(0xFF0F1422),
+      backgroundColor: const Color(0xFFEBE6D6),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: Colors.white54),
+        icon: Icon(Icons.arrow_back_ios, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
         onPressed: () => Navigator.pop(context),
       ),
       title: ShaderMask(
@@ -161,15 +161,15 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                 .createShader(bounds),
         child: Text(
           nombre,
-          style: const TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF2D5A27)),
         ),
       ),
       actions: [
         if (widget.userId != _miUid)
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.white54),
-            color: const Color(0xFF0F1422),
+            icon: Icon(Icons.more_vert, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
+            color: const Color(0xFFEBE6D6),
             onSelected: (value) {
               if (value == 'reportar') {
                 Navigator.push(
@@ -194,7 +194,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                         color: Colors.orangeAccent, size: 20),
                     SizedBox(width: 10),
                     Text('Reportar usuario',
-                        style: TextStyle(color: Colors.white)),
+                        style: TextStyle(color: Color(0xFF2D5A27))),
                   ],
                 ),
               ),
@@ -214,7 +214,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       _estaBloqueado
                           ? 'Desbloquear usuario'
                           : 'Bloquear usuario',
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Color(0xFF2D5A27)),
                     ),
                   ],
                 ),
@@ -253,32 +253,32 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F1422),
+                  color: const Color(0xFFEBE6D6),
                   borderRadius: BorderRadius.circular(45),
-                  border: Border.all(color: Colors.white10),
+                  border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                 ),
-                child: const Icon(Icons.block,
-                    color: Colors.white24, size: 40),
+                child: Icon(Icons.block,
+                    color: Color(0xFF2D5A27).withValues(alpha: 0.2), size: 40),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Usuario bloqueado',
                 style: TextStyle(
-                    color: Colors.white,
+                    color: Color(0xFF2D5A27),
                     fontSize: 20,
                     fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'No puedes ver el contenido\nde este usuario.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white38, fontSize: 14),
+                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
               ),
               const SizedBox(height: 32),
               TextButton.icon(
                 onPressed: _toggleBloqueo,
-                icon: const Icon(Icons.lock_open_outlined, color: Color(0xFF00DDFF)),
-                label: const Text(
+                icon: Icon(Icons.lock_open_outlined, color: Color(0xFF00DDFF)),
+                label: Text(
                   'Desbloquear usuario',
                   style: TextStyle(
                       color: Color(0xFF00DDFF),
@@ -325,8 +325,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                 nombre.isNotEmpty
                                     ? nombre[0].toUpperCase()
                                     : 'U',
-                                style: const TextStyle(
-                                    color: Colors.white,
+                                style: TextStyle(
+                                    color: Color(0xFF2D5A27),
                                     fontSize: 42,
                                     fontWeight: FontWeight.bold),
                               ),
@@ -335,16 +335,16 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                   ),
                   const SizedBox(height: 14),
                   Text(nombre,
-                      style: const TextStyle(
-                          color: Colors.white,
+                      style: TextStyle(
+                          color: Color(0xFF2D5A27),
                           fontSize: 24,
                           fontWeight: FontWeight.bold)),
                   if (bio.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(bio,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: Colors.white60, fontSize: 13)),
+                        style: TextStyle(
+                            color: Color(0xFF2D5A27).withValues(alpha: 0.6), fontSize: 13)),
                   ],
                 ],
               ),
@@ -358,9 +358,9 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F1422),
+                    color: const Color(0xFFEBE6D6),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white10),
+                    border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                   ),
                   child: Row(
                     children: [
@@ -368,18 +368,18 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                         shaderCallback: (bounds) =>
                             const LinearGradient(colors: [_magenta, _cian])
                                 .createShader(bounds),
-                        child: const Icon(Icons.swap_horiz,
-                            color: Colors.white, size: 28),
+                        child: Icon(Icons.swap_horiz,
+                            color: Color(0xFF2D5A27), size: 28),
                       ),
                       const SizedBox(width: 16),
-                      const Expanded(
+                      Expanded(
                         child: Text('Trueques realizados',
                             style: TextStyle(
-                                color: Colors.white60, fontSize: 14)),
+                                color: Color(0xFF2D5A27).withValues(alpha: 0.6), fontSize: 14)),
                       ),
                       Text('$total',
-                          style: const TextStyle(
-                              color: Colors.white,
+                          style: TextStyle(
+                              color: Color(0xFF2D5A27),
                               fontSize: 18,
                               fontWeight: FontWeight.bold)),
                     ],
@@ -409,9 +409,9 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F1422),
+                    color: const Color(0xFFEBE6D6),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white10),
+                    border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                   ),
                   child: Row(
                     children: [
@@ -419,17 +419,17 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                         shaderCallback: (bounds) =>
                             const LinearGradient(colors: [_magenta, _cian])
                                 .createShader(bounds),
-                        child: const Icon(Icons.star_outline,
-                            color: Colors.white, size: 28),
+                        child: Icon(Icons.star_outline,
+                            color: Color(0xFF2D5A27), size: 28),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Calificación',
+                            Text('Calificación',
                                 style: TextStyle(
-                                    color: Colors.white60, fontSize: 14)),
+                                    color: Color(0xFF2D5A27).withValues(alpha: 0.6), fontSize: 14)),
                             if (total > 0) ...[
                               const SizedBox(height: 4),
                               Row(
@@ -451,8 +451,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                         total == 0
                             ? '—'
                             : '${promedio.toStringAsFixed(1)} ($total)',
-                        style: const TextStyle(
-                            color: Colors.white,
+                        style: TextStyle(
+                            color: Color(0xFF2D5A27),
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
                       ),
@@ -467,9 +467,9 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
               shaderCallback: (bounds) =>
                   const LinearGradient(colors: [_magenta, _cian])
                       .createShader(bounds),
-              child: const Text('Reseñas recibidas',
+              child: Text('Reseñas recibidas',
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Color(0xFF2D5A27),
                       fontSize: 18,
                       fontWeight: FontWeight.bold)),
             ),
@@ -493,14 +493,14 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 32, horizontal: 24),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F1422),
+                      color: const Color(0xFFEBE6D6),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white10),
+                      border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text('Aún no tiene reseñas',
                           style: TextStyle(
-                              color: Colors.white38, fontSize: 14)),
+                              color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14)),
                     ),
                   );
                 }
@@ -533,9 +533,9 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF0F1422),
+                            color: const Color(0xFFEBE6D6),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white10),
+                            border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -563,8 +563,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                                     ? nombreDe[0]
                                                         .toUpperCase()
                                                     : 'U',
-                                                style: const TextStyle(
-                                                    color: Colors.white,
+                                                style: TextStyle(
+                                                    color: Color(0xFF2D5A27),
                                                     fontWeight:
                                                         FontWeight.bold,
                                                     fontSize: 16),
@@ -579,14 +579,14 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(nombreDe,
-                                            style: const TextStyle(
-                                                color: Colors.white,
+                                            style: TextStyle(
+                                                color: Color(0xFF2D5A27),
                                                 fontWeight:
                                                     FontWeight.bold,
                                                 fontSize: 14)),
                                         Text(_formatFecha(fecha),
-                                            style: const TextStyle(
-                                                color: Colors.white38,
+                                            style: TextStyle(
+                                                color: Color(0xFF2D5A27).withValues(alpha: 0.35),
                                                 fontSize: 11)),
                                       ],
                                     ),
@@ -610,13 +610,13 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color:
-                                      Colors.white.withValues(alpha: 0.05),
+                                      const Color(0xFF2D5A27).withValues(alpha: 0.05),
                                   borderRadius:
                                       BorderRadius.circular(10),
                                 ),
                                 child: Text(comentario,
-                                    style: const TextStyle(
-                                        color: Colors.white70,
+                                    style: TextStyle(
+                                        color: Color(0xFF2D5A27).withValues(alpha: 0.7),
                                         fontSize: 13,
                                         height: 1.4)),
                               ),
@@ -636,8 +636,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                   const LinearGradient(colors: [_magenta, _cian])
                       .createShader(bounds),
               child: Text('Publicaciones de $nombre',
-                  style: const TextStyle(
-                      color: Colors.white,
+                  style: TextStyle(
+                      color: Color(0xFF2D5A27),
                       fontSize: 18,
                       fontWeight: FontWeight.bold)),
             ),
@@ -662,14 +662,14 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 32, horizontal: 24),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F1422),
+                      color: const Color(0xFFEBE6D6),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white10),
+                      border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text('No tiene publicaciones aún',
                           style: TextStyle(
-                              color: Colors.white38, fontSize: 14)),
+                              color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14)),
                     ),
                   );
                 }
@@ -705,9 +705,9 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0F1422),
+                          color: const Color(0xFFEBE6D6),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white10),
+                          border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                         ),
                         child: Row(
                           children: [
@@ -723,10 +723,10 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                   : Container(
                                       width: 90,
                                       height: 90,
-                                      color: Colors.white10,
-                                      child: const Icon(
+                                      color: Color(0xFF2D5A27).withValues(alpha: 0.08),
+                                      child: Icon(
                                           Icons.image_outlined,
-                                          color: Colors.white24,
+                                          color: Color(0xFF2D5A27).withValues(alpha: 0.2),
                                           size: 32)),
                             ),
                             const SizedBox(width: 12),
@@ -739,8 +739,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                       CrossAxisAlignment.start,
                                   children: [
                                     Text(pub['titulo'] ?? '',
-                                        style: const TextStyle(
-                                            color: Colors.white,
+                                        style: TextStyle(
+                                            color: Color(0xFF2D5A27),
                                             fontWeight:
                                                 FontWeight.bold,
                                             fontSize: 15),
@@ -749,8 +749,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                             TextOverflow.ellipsis),
                                     const SizedBox(height: 4),
                                     Text(pub['descripcion'] ?? '',
-                                        style: const TextStyle(
-                                            color: Colors.white54,
+                                        style: TextStyle(
+                                            color: Color(0xFF2D5A27).withValues(alpha: 0.5),
                                             fontSize: 13),
                                         maxLines: 2,
                                         overflow:
@@ -773,8 +773,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                       ),
                                       child: Text(
                                           pub['categoria'] ?? '',
-                                          style: const TextStyle(
-                                              color: Colors.white,
+                                          style: TextStyle(
+                                              color: Color(0xFF2D5A27),
                                               fontSize: 11,
                                               fontWeight:
                                                   FontWeight.bold)),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -39,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnim,
@@ -53,9 +52,9 @@ class _SplashScreenState extends State<SplashScreen>
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppColors.superficie,
+                    color: const Color(0xFFEBE6D6),
                     borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: AppColors.borde, width: 1.5),
+                    border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08), width: 1.5),
                   ),
                   child: const Center(
                     child: Text('🌿', style: TextStyle(fontSize: 52)),
@@ -68,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen>
                       TextSpan(
                         text: 'Barter',
                         style: TextStyle(
-                          color: AppColors.textoP,
+                          color: Color(0xFF2D5A27),
                           fontSize: 36,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
@@ -77,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen>
                       TextSpan(
                         text: 'App',
                         style: TextStyle(
-                          color: AppColors.acentoClaro,
+                          color: Color(0xFF2D5A27),
                           fontSize: 36,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
@@ -87,16 +86,16 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Intercambia lo que no usas',
-                  style: TextStyle(color: AppColors.textoH, fontSize: 14),
+                  style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14),
                 ),
                 const SizedBox(height: 48),
                 SizedBox(
                   width: 28,
                   height: 28,
                   child: CircularProgressIndicator(
-                    color: AppColors.acento,
+                    color: const Color(0xFF2D5A27),
                     strokeWidth: 2.5,
                   ),
                 ),
