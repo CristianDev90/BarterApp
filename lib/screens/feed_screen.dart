@@ -87,7 +87,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: _fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -426,11 +426,11 @@ class _FeedScreenState extends State<FeedScreen> {
     final miId = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
-      backgroundColor: _fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
 
       // ── AppBar ──────────────────────────────────────────────────────────
       appBar: AppBar(
-        backgroundColor: _fondo,
+        backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         titleSpacing: 16,
         title: Row(
@@ -680,7 +680,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   key: _refreshKey,
                   onRefresh: _refrescar,
                   color: _verde,
-                  backgroundColor: _fondo,
+                  backgroundColor: const Color(0xFFEBE6D6),
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount: publicaciones.length,
@@ -963,7 +963,7 @@ class _FeedScreenState extends State<FeedScreen> {
     return showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: _fondo,
+        backgroundColor: const Color(0xFFEBE6D6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Eliminar publicación', style: TextStyle(color: _verde)),
         content: Text('¿Estás seguro?',
@@ -989,7 +989,7 @@ class _FeedScreenState extends State<FeedScreen> {
       key: _refreshKey,
       onRefresh: _refrescar,
       color: _verde,
-      backgroundColor: _fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       child: ListView(children: [
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.6,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/publicaciones_service.dart';
@@ -133,7 +133,7 @@ class _DetallePublicacionScreenState
                 height: 200,
                 color: const Color(0xFFEBE6D6),
                 child: const Center(
-                  child: Text('🌿', style: TextStyle(fontSize: 60)),
+                  child: Text('­ƒî┐', style: TextStyle(fontSize: 60)),
                 ),
               ),
 
@@ -142,7 +142,7 @@ class _DetallePublicacionScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Badge categoría
+                  // Badge categor├¡a
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 5),
@@ -170,7 +170,7 @@ class _DetallePublicacionScreenState
                   ),
                   const SizedBox(height: 14),
 
-                  // Título
+                  // T├¡tulo
                   Text(
                     widget.pub['titulo'] ?? '',
                     style: TextStyle(
@@ -181,7 +181,7 @@ class _DetallePublicacionScreenState
                   ),
                   const SizedBox(height: 12),
 
-                  // Descripción
+                  // Descripci├│n
                   Text(
                     widget.pub['descripcion'] ?? '',
                     style: TextStyle(
@@ -250,9 +250,9 @@ class _DetallePublicacionScreenState
         backgroundColor: const Color(0xFFEBE6D6),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
-        title: Text('Eliminar publicación',
+        title: Text('Eliminar publicaci├│n',
             style: TextStyle(color: Color(0xFF2D5A27))),
-        content: Text('¿Estás seguro?',
+        content: Text('┬┐Est├ís seguro?',
             style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
         actions: [
           TextButton(
@@ -313,14 +313,14 @@ class _DetallePublicacionScreenState
             border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.1)),
           ),
           child: Column(children: [
-            Text('¡Trueque completado!',
+            Text('┬íTrueque completado!',
                 style: TextStyle(
                     color: Color(0xFF2D5A27),
                     fontWeight: FontWeight.bold,
                     fontSize: 15)),
             const SizedBox(height: 6),
             Text(
-              '¿Cómo fue tu experiencia con $_propietarioNombre?',
+              '┬┐C├│mo fue tu experiencia con $_propietarioNombre?',
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/bloqueo_service.dart';
@@ -78,13 +78,13 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFFEBE6D6),
         title: Text(
-          '¿$accion a $nombre?',
+          '┬┐$accion a $nombre?',
           style: TextStyle(color: Color(0xFF2D5A27)),
         ),
         content: Text(
           _estaBloqueado
-              ? 'Volverás a ver sus publicaciones y podrá contactarte.'
-              : 'No verás sus publicaciones ni podrá contactarte.',
+              ? 'Volver├ís a ver sus publicaciones y podr├í contactarte.'
+              : 'No ver├ís sus publicaciones ni podr├í contactarte.',
           style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.6)),
         ),
         actions: [
@@ -146,7 +146,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
     return '${dt.day}/${dt.month}/${dt.year} $hora:$min';
   }
 
-  // ── Widget AppBar compartido para reutilizar ─────────────────────────────
+  // ÔöÇÔöÇ Widget AppBar compartido para reutilizar ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
   AppBar _buildAppBar(String nombre) {
     return AppBar(
       backgroundColor: const Color(0xFFEBE6D6),
@@ -227,7 +227,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ── Pantalla de carga inicial ────────────────────────────────────────
+    // ÔöÇÔöÇ Pantalla de carga inicial ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     if (_cargando) {
       return const Scaffold(
         backgroundColor: Color(0xFF0A0E1A),
@@ -240,7 +240,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
     final bio = _usuario?['bio'] ?? '';
     final fotoUrl = _usuario?['fotoUrl'] ?? '';
 
-    // ── BUG 4 FIX: guard — usuario bloqueado ve pantalla bloqueada ────────
+    // ÔöÇÔöÇ BUG 4 FIX: guard ÔÇö usuario bloqueado ve pantalla bloqueada ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     if (_estaBloqueado) {
       return Scaffold(
         backgroundColor: _fondo,
@@ -291,7 +291,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
       );
     }
 
-    // ── Perfil normal (no bloqueado) ─────────────────────────────────────
+    // ÔöÇÔöÇ Perfil normal (no bloqueado) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     return Scaffold(
       backgroundColor: _fondo,
       appBar: _buildAppBar(nombre),
@@ -427,7 +427,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Calificación',
+                            Text('Calificaci├│n',
                                 style: TextStyle(
                                     color: Color(0xFF2D5A27).withValues(alpha: 0.6), fontSize: 14)),
                             if (total > 0) ...[
@@ -449,7 +449,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       ),
                       Text(
                         total == 0
-                            ? '—'
+                            ? 'ÔÇö'
                             : '${promedio.toStringAsFixed(1)} ($total)',
                         style: TextStyle(
                             color: Color(0xFF2D5A27),
@@ -467,7 +467,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
               shaderCallback: (bounds) =>
                   const LinearGradient(colors: [_magenta, _cian])
                       .createShader(bounds),
-              child: Text('Reseñas recibidas',
+              child: Text('Rese├▒as recibidas',
                   style: TextStyle(
                       color: Color(0xFF2D5A27),
                       fontSize: 18,
@@ -498,7 +498,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                     ),
                     child: Center(
-                      child: Text('Aún no tiene reseñas',
+                      child: Text('A├║n no tiene rese├▒as',
                           style: TextStyle(
                               color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14)),
                     ),
@@ -667,7 +667,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                     ),
                     child: Center(
-                      child: Text('No tiene publicaciones aún',
+                      child: Text('No tiene publicaciones a├║n',
                           style: TextStyle(
                               color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14)),
                     ),

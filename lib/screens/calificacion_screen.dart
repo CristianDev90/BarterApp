@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../services/reputacion_service.dart';
 
 class CalificacionScreen extends StatefulWidget {
@@ -70,7 +70,7 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('¡Calificación enviada! ⭐'),
+          content: Text('┬íCalificaci├│n enviada! Ô¡É'),
           backgroundColor: Colors.green,
         ),
       );
@@ -135,7 +135,7 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '¿Cómo fue tu experiencia con',
+                    '┬┐C├│mo fue tu experiencia con',
                     style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.5), fontSize: 13),
                   ),
                   const SizedBox(height: 4),
@@ -152,7 +152,7 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
             ),
             const SizedBox(height: 28),
             Text(
-              'Puntuación',
+              'Puntuaci├│n',
               style: TextStyle(
                 color: Color(0xFF2D5A27).withValues(alpha: 0.7),
                 fontSize: 15,
@@ -193,7 +193,7 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
               maxLines: 4,
               style: TextStyle(color: Color(0xFF2D5A27)),
               decoration: InputDecoration(
-                hintText: '¿Cómo fue el trueque? ¿Llegó en buen estado?',
+                hintText: '┬┐C├│mo fue el trueque? ┬┐Lleg├│ en buen estado?',
                 hintStyle: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.2), fontSize: 13),
                 filled: true,
                 fillColor: Color(0xFF2D5A27).withValues(alpha: 0.08),
@@ -228,7 +228,7 @@ class _CalificacionScreenState extends State<CalificacionScreen> {
                   child: _cargando
                       ? const CircularProgressIndicator(color: Color(0xFF2D5A27))
                       : Text(
-                          'Enviar calificación',
+                          'Enviar calificaci├│n',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

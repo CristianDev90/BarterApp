@@ -9,18 +9,28 @@ import 'services/auth_service.dart';
 import 'services/notificaciones_service.dart';
  
 // ── Paleta global BarterApp Verde Claro ───────────────────────────────────
+// ── Paleta BarterApp ─────────────────────────────────────────────────────
+// _verdeOscuro  : títulos, íconos activos, botones, texto de chips
+// _verdeMedio   : íconos de nav inactivos
+// _textoBody    : texto de descripciones / secundario
+// _verdeClaro   : fondo de chips/etiquetas y bordes/separadores
+// fondo         : crema base de todas las pantallas
 class AppColors {
-  static const fondo        = Color(0xFFEBE6D6);
-  static const superficie   = Color(0xFFEBE6D6);
-  static const superficieAlt= Color(0xFFEBE6D6);
-  static const borde        = Color(0xFF2D5A27);
-  static const bordeAlt     = Color(0xFF2D5A27);
-  static const acento       = Color(0xFF2D5A27);
-  static const acentoClaro  = Color(0xFF2D5A27);
-  static const textoP       = Color(0xFF2D5A27);
-  static const textoS       = Color(0xFF2D5A27);
-  static const textoH       = Color(0xFF2D5A27);
-  static const appBar       = Color(0xFFEBE6D6);
+  static const fondo         = Color(0xFFEBE6D6);        // crema base
+  static const verdeOscuro   = Color(0xFF2D5A27);        // títulos, botones, activos
+  static const verdeMedio    = Color(0xFF4A7A3F);        // nav inactivo (un tono intermedio)
+  static const verdeClaro    = Color(0xFF2D5A27);        // base para chips/bordes (usada con opacity)
+  // Aliases heredados para no romper código existente
+  static const superficie    = Color(0xFFEBE6D6);
+  static const superficieAlt = Color(0xFFEBE6D6);
+  static const borde         = Color(0xFF2D5A27);
+  static const bordeAlt      = Color(0xFF2D5A27);
+  static const acento        = Color(0xFF2D5A27);
+  static const acentoClaro   = Color(0xFF2D5A27);
+  static const textoP        = Color(0xFF2D5A27);
+  static const textoS        = Color(0xFF2D5A27);
+  static const textoH        = Color(0xFF2D5A27);
+  static const appBar        = Color(0xFFEBE6D6);
 }
  
 void main() async {

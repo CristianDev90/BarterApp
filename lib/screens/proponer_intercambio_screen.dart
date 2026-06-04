@@ -24,10 +24,6 @@ class _ProponerIntercambioScreenState
   final _intercambioService = IntercambioService();
   bool _cargando = false;
 
-  static const Color _magenta = Color(0xFFCC00FF);
-  static const Color _cian = Color(0xFF00DDFF);
-  static const Color _fondo = Color(0xFF0A0E1A);
-
   @override
   void dispose() {
     _mensajeCtrl.dispose();
@@ -80,25 +76,23 @@ class _ProponerIntercambioScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       appBar: AppBar(
         backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: const Color(0xFF2D5A27).withValues(alpha: 0.5),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: ShaderMask(
-          shaderCallback: (bounds) =>
-              const LinearGradient(colors: [_magenta, _cian])
-                  .createShader(bounds),
-          child: Text(
-            'Proponer trueque',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Color(0xFF2D5A27),
-            ),
+        title: Text(
+          'Proponer trueque',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: const Color(0xFF2D5A27),
           ),
         ),
       ),
@@ -161,7 +155,7 @@ class _ProponerIntercambioScreenState
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: _cian, width: 1.5),
+                  borderSide: BorderSide(color: const Color(0xFF2D5A27), width: 1.5),
                 ),
               ),
             ),
@@ -172,7 +166,7 @@ class _ProponerIntercambioScreenState
               height: 52,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [_magenta, _cian]),
+                  color: const Color(0xFF2D5A27),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ElevatedButton(

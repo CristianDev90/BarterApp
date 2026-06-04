@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/intercambio_service.dart';
@@ -221,7 +221,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (mensajes.isEmpty) {
                   return Center(
                     child: Text(
-                      'Aún no hay mensajes.\n¡Saluda al otro usuario! 👋',
+                      'A├║n no hay mensajes.\n┬íSaluda al otro usuario! ­ƒæï',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: const Color(0xFF2D5A27)
