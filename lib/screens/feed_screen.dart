@@ -8,7 +8,6 @@ import 'crear_publicacion_screen.dart';
 import 'perfil_screen.dart';
 import 'detalle_publicacion_screen.dart';
 import 'intercambios_screen.dart';
-import '../main.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
