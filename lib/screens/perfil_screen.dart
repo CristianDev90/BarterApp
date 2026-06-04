@@ -98,20 +98,20 @@ class _PerfilScreenState extends State<PerfilScreen> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
         title: Text('¿Desbloquear a $nombreUsuario?',
-            style: TextStyle(color: Color(0xFF2D5A27))),
+            style: const TextStyle(color: Color(0xFF2D5A27))),
         content: Text(
           'Volverás a ver sus publicaciones y podrá contactarte.',
-          style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
+          style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text('Cancelar',
-                style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
+                style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35))),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Desbloquear',
+            child: const Text('Desbloquear',
                 style: TextStyle(
                     color: Color(0xFF2D5A27),
                     fontWeight: FontWeight.bold)),
@@ -138,6 +138,50 @@ class _PerfilScreenState extends State<PerfilScreen> {
     }
   }
 
+  // ── Diálogo de confirmación para cerrar sesión ──────────────────────
+  Future<void> _cerrarSesion() async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFFEBE6D6),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '¿Cerrar sesión?',
+          style: TextStyle(color: Color(0xFF2D5A27)),
+        ),
+        content: Text(
+          'Se cerrará tu sesión y volverás al inicio.',
+          style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancelar',
+                style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Cerrar sesión',
+              style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmar == true && mounted) {
+      await _authService.logout();
+      if (!mounted) return;
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+        (route) => false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_cargando) {
@@ -153,60 +197,16 @@ class _PerfilScreenState extends State<PerfilScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
-        title: Text('Mi Perfil',
+        title: const Text('Mi Perfil',
             style: TextStyle(
                 color: Color(0xFF2D5A27),
                 fontWeight: FontWeight.bold,
                 fontSize: 18)),
+        // ── CAMBIO 1: solo queda el botón de editar, se eliminó el de logout ──
         actions: [
           IconButton(
-            icon: Icon(Icons.edit_outlined, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
+            icon: Icon(Icons.edit_outlined, color: const Color(0xFF2D5A27).withValues(alpha: 0.5)),
             onPressed: _irAEditar,
-          ),
-          IconButton(
-            icon: Icon(Icons.logout_rounded, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
-            onPressed: () async {
-              final confirmar = await showDialog<bool>(
-                context: context,
-                builder: (_) => AlertDialog(
-                  backgroundColor: const Color(0xFFEBE6D6),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  title: Text(
-                    '¿Cerrar sesión?',
-                    style: TextStyle(color: Color(0xFF2D5A27)),
-                  ),
-                  content: Text(
-                    'Se cerrará tu sesión y volverás al inicio.',
-                    style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35)),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: Text('Cancelar',
-                          style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: Text(
-                        'Cerrar sesión',
-                        style: TextStyle(
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-              if (confirmar == true) {
-                await _authService.logout();
-                if (!mounted || !context.mounted) return;
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/login',
-                  (route) => false,
-                );
-              }
-            },
           ),
         ],
       ),
@@ -227,7 +227,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     color: const Color(0xFF2D5A27),
                     borderRadius: BorderRadius.circular(48),
                     border: Border.all(
-                        color: Color(0xFF2D5A27).withValues(alpha: 0.1), width: 3),
+                        color: const Color(0xFF2D5A27).withValues(alpha: 0.1), width: 3),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(48),
@@ -241,7 +241,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               _nombre.isNotEmpty
                                   ? _nombre[0].toUpperCase()
                                   : 'U',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Color(0xFFEBE6D6),
                                 fontSize: 40,
                                 fontWeight: FontWeight.bold,
@@ -252,20 +252,20 @@ class _PerfilScreenState extends State<PerfilScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(_nombre,
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: Color(0xFF2D5A27),
                         fontSize: 22,
                         fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(_email,
                     style: TextStyle(
-                        color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13)),
+                        color: const Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13)),
                 if (_bio.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(_bio,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: Color(0xFF2D5A27).withValues(alpha: 0.5), fontSize: 13)),
+                          color: const Color(0xFF2D5A27).withValues(alpha: 0.5), fontSize: 13)),
                 ],
               ]),
             ),
@@ -316,7 +316,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
             const SizedBox(height: 28),
 
             // ── Mis publicaciones ───────────────────────────────────────
-            Text('Mis publicaciones',
+            const Text('Mis publicaciones',
                 style: TextStyle(
                     color: Color(0xFF2D5A27),
                     fontSize: 17,
@@ -363,7 +363,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFFEBE6D6),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
+                          border: Border.all(color: const Color(0xFF2D5A27).withValues(alpha: 0.08)),
                         ),
                         child: Row(children: [
                           ClipRRect(
@@ -377,7 +377,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                     height: 88,
                                     color: const Color(0xFFEBE6D6),
                                     child: Icon(Icons.image_outlined,
-                                        color: Color(0xFF2D5A27).withValues(alpha: 0.35), size: 30)),
+                                        color: const Color(0xFF2D5A27).withValues(alpha: 0.35), size: 30)),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -388,7 +388,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(pub['titulo'] ?? '',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           color: Color(0xFF2D5A27),
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14),
@@ -397,7 +397,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                   const SizedBox(height: 4),
                                   Text(pub['descripcion'] ?? '',
                                       style: TextStyle(
-                                          color: Color(0xFF2D5A27).withValues(alpha: 0.35),
+                                          color: const Color(0xFF2D5A27).withValues(alpha: 0.35),
                                           fontSize: 12),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis),
@@ -408,18 +408,17 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFEBE6D6),
                                       borderRadius: BorderRadius.circular(50),
-                                      border:
-                                          Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.1)),
+                                      border: Border.all(color: const Color(0xFF2D5A27).withValues(alpha: 0.1)),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.eco_outlined,
+                                        const Icon(Icons.eco_outlined,
                                             size: 10,
                                             color: Color(0xFF2D5A27)),
                                         const SizedBox(width: 4),
                                         Text(pub['categoria'] ?? '',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 color: Color(0xFF2D5A27),
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.bold)),
@@ -431,37 +430,31 @@ class _PerfilScreenState extends State<PerfilScreen> {
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.delete_outline_rounded,
+                            icon: const Icon(Icons.delete_outline_rounded,
                                 color: Colors.redAccent, size: 20),
                             onPressed: () async {
-                              final confirmar =
-                                  await showDialog<bool>(
+                              final confirmar = await showDialog<bool>(
                                 context: context,
                                 builder: (_) => AlertDialog(
                                   backgroundColor: const Color(0xFFEBE6D6),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(20)),
-                                  title: Text('Eliminar',
-                                      style: TextStyle(
-                                          color: Color(0xFF2D5A27))),
+                                      borderRadius: BorderRadius.circular(20)),
+                                  title: const Text('Eliminar',
+                                      style: TextStyle(color: Color(0xFF2D5A27))),
                                   content: Text('¿Estás seguro?',
                                       style: TextStyle(
-                                          color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
+                                          color: const Color(0xFF2D5A27).withValues(alpha: 0.35))),
                                   actions: [
                                     TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
+                                      onPressed: () => Navigator.pop(context, false),
                                       child: Text('Cancelar',
                                           style: TextStyle(
-                                              color: Color(0xFF2D5A27).withValues(alpha: 0.35))),
+                                              color: const Color(0xFF2D5A27).withValues(alpha: 0.35))),
                                     ),
                                     TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      child: Text('Eliminar',
-                                          style: TextStyle(
-                                              color: Colors.redAccent)),
+                                      onPressed: () => Navigator.pop(context, true),
+                                      child: const Text('Eliminar',
+                                          style: TextStyle(color: Colors.redAccent)),
                                     ),
                                   ],
                                 ),
@@ -490,7 +483,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Usuarios bloqueados',
+                    const Text('Usuarios bloqueados',
                         style: TextStyle(
                             color: Color(0xFF2D5A27),
                             fontSize: 17,
@@ -519,7 +512,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               decoration: BoxDecoration(
                                 color: const Color(0xFFEBE6D6),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
+                                border: Border.all(color: const Color(0xFF2D5A27).withValues(alpha: 0.08)),
                               ),
                               child: Row(children: [
                                 Container(
@@ -532,14 +525,13 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(21),
                                     child: foto.isNotEmpty
-                                        ? Image.network(foto,
-                                            fit: BoxFit.cover)
+                                        ? Image.network(foto, fit: BoxFit.cover)
                                         : Center(
                                             child: Text(
                                               nombre.isNotEmpty
                                                   ? nombre[0].toUpperCase()
                                                   : 'U',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: Color(0xFFEBE6D6),
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 18),
@@ -550,7 +542,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Text(nombre,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           color: Color(0xFF2D5A27),
                                           fontWeight: FontWeight.w600,
                                           fontSize: 14)),
@@ -558,11 +550,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                 TextButton.icon(
                                   onPressed: () =>
                                       _desbloquearUsuario(uid, nombre),
-                                  icon: Icon(
+                                  icon: const Icon(
                                       Icons.lock_open_outlined,
                                       color: Color(0xFF2D5A27),
                                       size: 16),
-                                  label: Text('Desbloquear',
+                                  label: const Text('Desbloquear',
                                       style: TextStyle(
                                           color: Color(0xFF2D5A27),
                                           fontSize: 12,
@@ -573,8 +565,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                     backgroundColor: const Color(0xFF2D5A27)
                                         .withValues(alpha: 0.1),
                                     shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
+                                        borderRadius: BorderRadius.circular(10)),
                                   ),
                                 ),
                               ]),
@@ -589,20 +580,20 @@ class _PerfilScreenState extends State<PerfilScreen> {
               },
             ),
 
-            // ── Cerrar sesión ───────────────────────────────────────────
+            // ── CAMBIO 2 y 3: botón cerrar sesión con diálogo y redirección ──
             SizedBox(
               width: double.infinity,
               height: 50,
               child: OutlinedButton.icon(
-                onPressed: () async => await _authService.logout(),
+                onPressed: _cerrarSesion,
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Colors.redAccent, width: 1.5),
+                  side: const BorderSide(color: Colors.redAccent, width: 1.5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
                 ),
-                icon: Icon(Icons.logout_rounded,
+                icon: const Icon(Icons.logout_rounded,
                     color: Colors.redAccent, size: 18),
-                label: Text('Cerrar sesión',
+                label: const Text('Cerrar sesión',
                     style: TextStyle(
                         color: Colors.redAccent,
                         fontSize: 15,
@@ -627,7 +618,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFEBE6D6),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
+        border: Border.all(color: const Color(0xFF2D5A27).withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -635,7 +626,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
           Icon(icon, color: const Color(0xFF2D5A27), size: 24),
           const SizedBox(height: 10),
           Text(valor,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Color(0xFF2D5A27),
                   fontSize: 22,
                   fontWeight: FontWeight.bold)),
@@ -643,12 +634,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
             const SizedBox(height: 2),
             Text(sub,
                 style: TextStyle(
-                    color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 11)),
+                    color: const Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 11)),
           ],
           const SizedBox(height: 4),
           Text(label,
               style: TextStyle(
-                  color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 12)),
+                  color: const Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 12)),
         ],
       ),
     );
@@ -660,13 +651,13 @@ class _PerfilScreenState extends State<PerfilScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFEBE6D6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
+        border: Border.all(color: const Color(0xFF2D5A27).withValues(alpha: 0.08)),
       ),
       child: Column(children: [
-        Icon(Icons.inventory_2_outlined,
+        const Icon(Icons.inventory_2_outlined,
             size: 44, color: Color(0xFF2D5A27)),
         const SizedBox(height: 14),
-        Text('Aún no tienes publicaciones',
+        const Text('Aún no tienes publicaciones',
             style: TextStyle(
                 color: Color(0xFF2D5A27),
                 fontSize: 15,
@@ -675,7 +666,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
         Text(
           'Publica algo para empezar\na hacer trueques',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
+          style: TextStyle(color: const Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 13),
         ),
         const SizedBox(height: 20),
         ElevatedButton.icon(
@@ -687,14 +678,13 @@ class _PerfilScreenState extends State<PerfilScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF2D5A27),
             foregroundColor: const Color(0xFFEBE6D6),
-            padding: const EdgeInsets.symmetric(
-                horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12)),
             elevation: 0,
           ),
-          icon: Icon(Icons.add_rounded),
-          label: Text('Crear publicación',
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Crear publicación',
               style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ]),
@@ -737,14 +727,14 @@ class _SkeletonPubState extends State<_SkeletonPub>
       animation: _anim,
       builder: (_, _) {
         final color = Color.lerp(
-            const Color(0xFFEBE6D6), const Color(0xFFEBE6D6), _anim.value)!;
+            const Color(0xFFEBE6D6), const Color(0xFFD6D0BF), _anim.value)!;
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
           height: 88,
           decoration: BoxDecoration(
             color: const Color(0xFFEBE6D6),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
+            border: Border.all(color: const Color(0xFF2D5A27).withValues(alpha: 0.08)),
           ),
           child: Row(children: [
             ClipRRect(
