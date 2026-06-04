@@ -28,9 +28,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final _scrollCtrl = ScrollController();
   final _miUid = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-  static const Color _magenta = Color(0xFFCC00FF);
-  static const Color _cian = Color(0xFF00DDFF);
-  static const Color _fondo = Color(0xFF0A0E1A);
+  static const Color _verde = Color(0xFF2D5A27);
+  static const Color _beige = Color(0xFFEBE6D6);
 
   @override
   void dispose() {
@@ -89,10 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
           maxWidth: MediaQuery.of(context).size.width * 0.72,
         ),
         decoration: BoxDecoration(
-          gradient: esMio
-              ? const LinearGradient(colors: [_magenta, _cian])
-              : null,
-          color: esMio ? null : const Color(0xFFEBE6D6),
+          color: esMio ? _verde : const Color(0xFFD6D0C0),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -102,7 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
           border: esMio
               ? null
               : Border.all(
-                  color: const Color(0xFF2D5A27).withValues(alpha: 0.08)),
+                  color: const Color(0xFF2D5A27).withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment:
@@ -110,14 +106,16 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(
               texto,
-              style: const TextStyle(
-                  color: Color(0xFF2D5A27), fontSize: 14),
+              style: TextStyle(
+                  color: esMio ? _beige : const Color(0xFF2D5A27), fontSize: 14),
             ),
             const SizedBox(height: 4),
             Text(
               hora,
               style: TextStyle(
-                  color: const Color(0xFF2D5A27).withValues(alpha: 0.5),
+                  color: esMio
+                      ? _beige.withValues(alpha: 0.6)
+                      : const Color(0xFF2D5A27).withValues(alpha: 0.5),
                   fontSize: 10),
             ),
           ],
@@ -129,7 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       appBar: AppBar(
         backgroundColor: const Color(0xFFEBE6D6),
         elevation: 0,
@@ -146,8 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  gradient:
-                      const LinearGradient(colors: [_magenta, _cian]),
+                  color: _verde,
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: ClipRRect(
@@ -174,11 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ShaderMask(
-                      shaderCallback: (bounds) =>
-                          const LinearGradient(colors: [_magenta, _cian])
-                              .createShader(bounds),
-                      child: Text(
+                    Text(
                         widget.otroUsuarioNombre,
                         style: const TextStyle(
                           color: Color(0xFF2D5A27),
@@ -187,7 +180,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
                     Text(
                       'Ver perfil',
                       style: TextStyle(
@@ -212,7 +204,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(
-                        color: Color(0xFF00DDFF)),
+                        color: Color(0xFF2D5A27)),
                   );
                 }
 
@@ -288,12 +280,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                          colors: [_magenta, _cian]),
+                      color: _verde,
                       borderRadius: BorderRadius.circular(22),
                     ),
                     child: const Icon(Icons.send_rounded,
-                        color: Color(0xFF2D5A27), size: 20),
+                        color: Color(0xFFEBE6D6), size: 20),
                   ),
                 ),
               ],

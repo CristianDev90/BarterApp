@@ -31,7 +31,7 @@ class _IntercambiosScreenState extends State<IntercambiosScreen>
 
   Color _colorEstado(String estado) {
     switch (estado) {
-      case 'aceptado':  return Colors.greenAccent;
+      case 'aceptado':  return const Color(0xFF2D5A27);
       case 'rechazado': return Colors.redAccent;
       case 'cancelado': return Colors.orange;
       default:          return Color(0xFF2D5A27).withValues(alpha: 0.35);

@@ -15,9 +15,6 @@ class PerfilUsuarioScreen extends StatefulWidget {
 }
 
 class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
-  static const Color _magenta = Color(0xFFCC00FF);
-  static const Color _cian = Color(0xFF00DDFF);
-  static const Color _fondo = Color(0xFF0A0E1A);
 
   final _bloqueoService = BloqueoService();
   final _miUid = FirebaseAuth.instance.currentUser?.uid ?? '';
@@ -78,13 +75,13 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFFEBE6D6),
         title: Text(
-          '┬┐$accion a $nombre?',
+          '¿$accion a $nombre?',
           style: TextStyle(color: Color(0xFF2D5A27)),
         ),
         content: Text(
           _estaBloqueado
-              ? 'Volver├ís a ver sus publicaciones y podr├í contactarte.'
-              : 'No ver├ís sus publicaciones ni podr├í contactarte.',
+              ? 'Volverás a ver sus publicaciones y podrá contactarte.'
+              : 'No verás sus publicaciones ni podrá contactarte.',
           style: TextStyle(color: Color(0xFF2D5A27).withValues(alpha: 0.6)),
         ),
         actions: [
@@ -98,7 +95,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
             child: Text(
               accion[0].toUpperCase() + accion.substring(1),
               style: TextStyle(
-                color: _estaBloqueado ? _cian : Colors.redAccent,
+                color: _estaBloqueado ? const Color(0xFF2D5A27) : Colors.redAccent,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -155,16 +152,11 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
         icon: Icon(Icons.arrow_back_ios, color: Color(0xFF2D5A27).withValues(alpha: 0.5)),
         onPressed: () => Navigator.pop(context),
       ),
-      title: ShaderMask(
-        shaderCallback: (bounds) =>
-            const LinearGradient(colors: [_magenta, _cian])
-                .createShader(bounds),
-        child: Text(
+      title: Text(
           nombre,
-          style: TextStyle(
+          style: const TextStyle(
               fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF2D5A27)),
         ),
-      ),
       actions: [
         if (widget.userId != _miUid)
           PopupMenuButton<String>(
@@ -206,7 +198,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       _estaBloqueado
                           ? Icons.lock_open_outlined
                           : Icons.block,
-                      color: _estaBloqueado ? _cian : Colors.redAccent,
+                      color: _estaBloqueado ? const Color(0xFF2D5A27) : Colors.redAccent,
                       size: 20,
                     ),
                     const SizedBox(width: 10),
@@ -230,9 +222,9 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
     // ÔöÇÔöÇ Pantalla de carga inicial ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     if (_cargando) {
       return const Scaffold(
-        backgroundColor: Color(0xFF0A0E1A),
+        backgroundColor: Color(0xFFEBE6D6),
         body: Center(
-            child: CircularProgressIndicator(color: Color(0xFF00DDFF))),
+            child: CircularProgressIndicator(color: Color(0xFF2D5A27))),
       );
     }
 
@@ -243,7 +235,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
     // ÔöÇÔöÇ BUG 4 FIX: guard ÔÇö usuario bloqueado ve pantalla bloqueada ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     if (_estaBloqueado) {
       return Scaffold(
-        backgroundColor: _fondo,
+        backgroundColor: const Color(0xFFEBE6D6),
         appBar: _buildAppBar(nombre),
         body: Center(
           child: Column(
@@ -293,7 +285,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
 
     // ÔöÇÔöÇ Perfil normal (no bloqueado) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     return Scaffold(
-      backgroundColor: _fondo,
+      backgroundColor: const Color(0xFFEBE6D6),
       appBar: _buildAppBar(nombre),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -309,10 +301,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                          colors: [_magenta, _cian],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight),
+                      color: const Color(0xFF2D5A27),
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: ClipRRect(
@@ -326,7 +315,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                     ? nombre[0].toUpperCase()
                                     : 'U',
                                 style: TextStyle(
-                                    color: Color(0xFF2D5A27),
+                                    color: Color(0xFFEBE6D6),
                                     fontSize: 42,
                                     fontWeight: FontWeight.bold),
                               ),
@@ -364,13 +353,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                   ),
                   child: Row(
                     children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) =>
-                            const LinearGradient(colors: [_magenta, _cian])
-                                .createShader(bounds),
-                        child: Icon(Icons.swap_horiz,
+                      Icon(Icons.swap_horiz,
                             color: Color(0xFF2D5A27), size: 28),
-                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Text('Trueques realizados',
@@ -415,19 +399,14 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                   ),
                   child: Row(
                     children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) =>
-                            const LinearGradient(colors: [_magenta, _cian])
-                                .createShader(bounds),
-                        child: Icon(Icons.star_outline,
+                      Icon(Icons.star_outline,
                             color: Color(0xFF2D5A27), size: 28),
-                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Calificaci├│n',
+                            Text('Calificación',
                                 style: TextStyle(
                                     color: Color(0xFF2D5A27).withValues(alpha: 0.6), fontSize: 14)),
                             if (total > 0) ...[
@@ -463,16 +442,11 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
             ),
             const SizedBox(height: 32),
 
-            ShaderMask(
-              shaderCallback: (bounds) =>
-                  const LinearGradient(colors: [_magenta, _cian])
-                      .createShader(bounds),
-              child: Text('Rese├▒as recibidas',
-                  style: TextStyle(
+            Text('Reseñas recibidas',
+                  style: const TextStyle(
                       color: Color(0xFF2D5A27),
                       fontSize: 18,
                       fontWeight: FontWeight.bold)),
-            ),
             const SizedBox(height: 14),
 
             StreamBuilder<QuerySnapshot>(
@@ -485,7 +459,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(
                       child: CircularProgressIndicator(
-                          color: Color(0xFF00DDFF)));
+                          color: Color(0xFF2D5A27)));
                 }
 
                 if (!snap.hasData || snap.data!.docs.isEmpty) {
@@ -498,7 +472,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                     ),
                     child: Center(
-                      child: Text('A├║n no tiene rese├▒as',
+                      child: Text('Aún no tiene reseñas',
                           style: TextStyle(
                               color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14)),
                     ),
@@ -546,8 +520,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                     width: 38,
                                     height: 38,
                                     decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                          colors: [_magenta, _cian]),
+                                      color: const Color(0xFF2D5A27),
                                       borderRadius:
                                           BorderRadius.circular(19),
                                     ),
@@ -563,8 +536,8 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                                     ? nombreDe[0]
                                                         .toUpperCase()
                                                     : 'U',
-                                                style: TextStyle(
-                                                    color: Color(0xFF2D5A27),
+                                                style: const TextStyle(
+                                                    color: Color(0xFFEBE6D6),
                                                     fontWeight:
                                                         FontWeight.bold,
                                                     fontSize: 16),
@@ -631,16 +604,11 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
             ),
             const SizedBox(height: 32),
 
-            ShaderMask(
-              shaderCallback: (bounds) =>
-                  const LinearGradient(colors: [_magenta, _cian])
-                      .createShader(bounds),
-              child: Text('Publicaciones de $nombre',
+            Text('Publicaciones de $nombre',
                   style: TextStyle(
-                      color: Color(0xFF2D5A27),
+                      color: const Color(0xFF2D5A27),
                       fontSize: 18,
                       fontWeight: FontWeight.bold)),
-            ),
             const SizedBox(height: 14),
 
             StreamBuilder<QuerySnapshot>(
@@ -654,7 +622,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(
                       child: CircularProgressIndicator(
-                          color: Color(0xFF00DDFF)));
+                          color: Color(0xFF2D5A27)));
                 }
 
                 if (!snap.hasData || snap.data!.docs.isEmpty) {
@@ -667,7 +635,7 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                       border: Border.all(color: Color(0xFF2D5A27).withValues(alpha: 0.08)),
                     ),
                     child: Center(
-                      child: Text('No tiene publicaciones a├║n',
+                      child: Text('No tiene publicaciones aún',
                           style: TextStyle(
                               color: Color(0xFF2D5A27).withValues(alpha: 0.35), fontSize: 14)),
                     ),
@@ -762,18 +730,14 @@ class _PerfilUsuarioScreenState extends State<PerfilUsuarioScreen> {
                                               horizontal: 8,
                                               vertical: 3),
                                       decoration: BoxDecoration(
-                                        gradient:
-                                            const LinearGradient(
-                                                colors: [
-                                              _magenta,
-                                              _cian
-                                            ]),
+                                        color: const Color(0xFF2D5A27).withValues(alpha: 0.12),
+                                        border: Border.all(color: const Color(0xFF2D5A27), width: 1),
                                         borderRadius:
                                             BorderRadius.circular(20),
                                       ),
                                       child: Text(
                                           pub['categoria'] ?? '',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               color: Color(0xFF2D5A27),
                                               fontSize: 11,
                                               fontWeight:

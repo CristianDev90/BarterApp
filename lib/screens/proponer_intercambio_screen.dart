@@ -179,13 +179,13 @@ class _ProponerIntercambioScreenState
                     ),
                   ),
                   child: _cargando
-                      ? const CircularProgressIndicator(color: Color(0xFF2D5A27))
-                      : Text(
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                           'Enviar propuesta',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D5A27),
+                            color: Colors.white,
                           ),
                         ),
                 ),

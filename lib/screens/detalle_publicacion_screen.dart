@@ -282,20 +282,20 @@ class _DetallePublicacionScreenState
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.green.withValues(alpha: 0.1),
+            color: const Color(0xFF2D5A27).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-                color: Colors.green.withValues(alpha: 0.3)),
+                color: const Color(0xFF2D5A27).withValues(alpha: 0.25)),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.check_circle_outline,
-                  color: Colors.greenAccent, size: 20),
+                  color: Color(0xFF2D5A27), size: 20),
               SizedBox(width: 8),
               Text('Ya calificaste este trueque',
                   style: TextStyle(
-                      color: Colors.greenAccent,
+                      color: Color(0xFF2D5A27),
                       fontWeight: FontWeight.bold)),
             ],
           ),
