@@ -456,6 +456,19 @@ class _FeedScreenState extends State<FeedScreen> {
             ],
           ),
         ),
+        actions: [
+  IconButton(
+    icon: Icon(
+      Icons.volunteer_activism_rounded,
+      color: _verde.withValues(alpha: 0.7),
+    ),
+    onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => const FundacionesScreen()),
+    ),
+  ),
+],
       ),
 
       // ── Body ────────────────────────────────────────────────────────────
