@@ -141,19 +141,11 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 60),
 
-              // Logo
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEBE6D6),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFF2D5A27).withValues(alpha: 0.08), width: 1.5),
-                ),
-                child: const Center(
-                  child: Text('🌿', style: TextStyle(fontSize: 46)),
-                ),
-              ),
+Image.asset(
+  'assets/images/logo_foreground.png',
+  width: 100,
+  height: 100,
+),
               const SizedBox(height: 20),
 
               RichText(

@@ -544,10 +544,7 @@ title: RichText(
                           setState(() => _busqueda = '');
                         },
                       )
-                    : const Padding(
-                        padding: EdgeInsets.only(right: 14),
-                        child: Text('🌱', style: TextStyle(fontSize: 18)),
-                      ),
+: null,
                 filled: true,
                 fillColor: _fondo,
                 border: OutlineInputBorder(
